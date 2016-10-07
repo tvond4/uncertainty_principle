@@ -70,54 +70,95 @@ public class AutomasMRGyro extends LinearOpMode {
             telemetry.addData("4", "Z av. %03d", zVal);
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-            driveTicksStraight(.4, 100, 1, heading);
+            driveTicksStraight(.4, 100, 0, heading);
+            telemetry.addData("done", heading);
+            telemetry.update();
+
 //            turnToHeading(.5, 100);
         }
     }
-    void driveTicksStraight(double power, int ticks, int s, double heading) {
+    void driveTicksStraight(double power, int ticks, double direction, double heading) {
         int startLeft = mL2.getCurrentPosition();
         int startRight = mR2.getCurrentPosition();
-        double initHeading = heading;
-        double error_const = .2;
+        double error = .1;
+//        double initHeading = heading;
+        if (!(direction == heading)){
+            turn(direction, heading);
+        }
 
         while ((Math.abs(mL2.getCurrentPosition()-startLeft) < ticks) ||
                 (Math.abs(mR2.getCurrentPosition()-startRight) < ticks)) {
-            double pl = power;
-            double pr = power;
+//            double pl = power;
+//            double pr = power;
 
-            double error = gyro.getIntegratedZValue() - initHeading;
+//            double error = gyro.getIntegratedZValue() - initHeading;
+            if (!(direction == 0)) {
+                if (direction > heading) {
+                    drive(power + error, power - error);
+                } else if (direction < heading) {
+                    drive(power - error, power + error);
+                }
+                else {
+                    telemetry.addData("broken1", power);
+                    telemetry.update();
+                    break;
+                }
+            } else {
+                if (direction > heading) {
+                    drive(power + error, power - error);
+                } else if (direction < heading) {
+                    drive(power - error, power + error);
+                }
+                else {
+                    telemetry.addData("broken2", power);
+                    telemetry.update();
+                    break;
+                }
+            }
+        }
+//            pl-=error * error_const*s;
+//            pr+=error * error_const*s;
+//
+//            telemetry.addData("Left Power", power);
+//            telemetry.addData("Right Power", power);
+//            telemetry.update();
 
-            pl-=error * error_const*s;
-            pr+=error * error_const*s;
-
-            pl = scale(pl);
-            pr = scale(pr);
-
-            drive(pl, pr);
-            telemetry.addData("Left Power", pl);
-            telemetry.addData("Right Power", pr);
-            telemetry.update();
+//            pl = scale(pl);
+//            pr = scale(pr);
+//
+//            drive(pl, pr);
 
         }
-        drive(0, 0);
+//        drive(0, 0)
+
+    public void turn(double turndirection, double heading) {
+        double power = .1;
+        while (!(turndirection == heading)){
+            if (turndirection > heading) {
+                drive(power, -power);
+            } else if (turndirection < heading) {
+                drive(-power, power);
+            }
+        }
+        telemetry.addData("turning", turndirection);
+        telemetry.update();
     }
 
-    public void turnToHeading(double turnPower, double desiredHeading) {
-        if (gyro.getIntegratedZValue()+180 > desiredHeading+180) {
-      /* might need a dead zone for turning... */
-            //Turn left until robot reaches the desiredHeading
-            while (gyro.getIntegratedZValue()+180 > desiredHeading+180) {
-                drive(-turnPower, turnPower);
-            }
-            drive(0, 0);
-        } else {
-            //Turn right until robot reaches the desiredHeading
-            while (gyro.getIntegratedZValue()+180 < desiredHeading+180) {
-                drive(turnPower, -turnPower);
-            }
-            drive(0, 0);
-        }
-    }
+//            if (gyro.getIntegratedZValue()+180 > desiredHeading+180) {
+//      /* might need a dead zone for turning... */
+//            //Turn left until robot reaches the desiredHeading
+//            while (gyro.getIntegratedZValue()+180 > desiredHeading+180) {
+//                drive(-turnPower, turnPower);
+//            }
+//            drive(0, 0);
+//        } else {
+//            //Turn right until robot reaches the desiredHeading
+//            while (gyro.getIntegratedZValue()+180 < desiredHeading+180) {
+//                drive(turnPower, -turnPower);
+//            }
+//            drive(0, 0);
+//        }
+//    }
 
 //
 //    public void driveStraight(double power, double initHeading, int s) {
