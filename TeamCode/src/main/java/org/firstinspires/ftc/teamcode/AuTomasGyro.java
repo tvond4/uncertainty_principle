@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name = "Tomas youre are cool", group = "automas")
+@Autonomous(name = "Tomas you're are cool", group = "automas")
 
 public class AuTomasGyro extends LinearOpMode {
 

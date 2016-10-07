@@ -70,46 +70,48 @@ public class AutomasMRGyro extends LinearOpMode {
             telemetry.addData("4", "Z av. %03d", zVal);
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-            driveTicksStraight(.4, 100, 0, heading);
+            driveTicksStraight(.4, 30, 0);
             telemetry.addData("done", heading);
             telemetry.update();
 
 //            turnToHeading(.5, 100);
         }
     }
-    void driveTicksStraight(double power, int ticks, double direction, double heading) {
+    void driveTicksStraight(double power, int ticks, double direction) {
         int startLeft = mL2.getCurrentPosition();
         int startRight = mR2.getCurrentPosition();
         double error = .1;
 //        double initHeading = heading;
-        if (!(direction == heading)){
-            turn(direction, heading);
-        }
+//        if (!(direction == gyro.getIntegratedZValue())){
+//            turn(direction,  gyro.getIntegratedZValue());
+//        }
 
-        while ((Math.abs(mL2.getCurrentPosition()-startLeft) < ticks) ||
+        while ((Math.abs(mL2.getCurrentPosition()-startLeft) < ticks) || //if less than distance it's supposed to be
                 (Math.abs(mR2.getCurrentPosition()-startRight) < ticks)) {
 //            double pl = power;
 //            double pr = power;
 
 //            double error = gyro.getIntegratedZValue() - initHeading;
             if (!(direction == 0)) {
-                if (direction > heading) {
+                if (direction >  gyro.getIntegratedZValue()) {
                     drive(power + error, power - error);
-                } else if (direction < heading) {
+                } else if (direction <  gyro.getIntegratedZValue()) {
                     drive(power - error, power + error);
                 }
                 else {
+                    drive(power, power);
                     telemetry.addData("broken1", power);
                     telemetry.update();
                     break;
                 }
             } else {
-                if (direction > heading) {
+                if (direction >  gyro.getIntegratedZValue()) {
                     drive(power + error, power - error);
-                } else if (direction < heading) {
+                } else if (direction <  gyro.getIntegratedZValue()) {
                     drive(power - error, power + error);
                 }
                 else {
+                    drive(power, power);
                     telemetry.addData("broken2", power);
                     telemetry.update();
                     break;
@@ -132,13 +134,19 @@ public class AutomasMRGyro extends LinearOpMode {
 //        drive(0, 0)
 
     public void turn(double turndirection, double heading) {
+        heading = gyro.getHeading();
         double power = .1;
+        telemetry.addData("heading", heading);
+        telemetry.addData("turndirection", turndirection);
+        telemetry.update();
         while (!(turndirection == heading)){
             if (turndirection > heading) {
                 drive(power, -power);
             } else if (turndirection < heading) {
                 drive(-power, power);
             }
+            heading = gyro.getHeading();
+            telemetry.update();
         }
         telemetry.addData("turning", turndirection);
         telemetry.update();
