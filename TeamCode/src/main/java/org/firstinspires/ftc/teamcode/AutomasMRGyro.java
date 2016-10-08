@@ -6,10 +6,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name = "automasMRGyro0", group = "automas")
+@Autonomous(name = "automasMRGyro00", group = "automas")
 
 public class AutomasMRGyro extends LinearOpMode {
 
@@ -32,6 +33,11 @@ public class AutomasMRGyro extends LinearOpMode {
         mR1 = hardwareMap.dcMotor.get("mR1");
         mL2 = hardwareMap.dcMotor.get("mL2");
         mR2 = hardwareMap.dcMotor.get("mR2");
+
+        mL1.setDirection(DcMotor.Direction.REVERSE);
+        mL2.setDirection(DcMotor.Direction.REVERSE);
+        mR1.setDirection(DcMotor.Direction.FORWARD);
+        mR2.setDirection(DcMotor.Direction.FORWARD);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro");
 
@@ -69,54 +75,53 @@ public class AutomasMRGyro extends LinearOpMode {
             telemetry.addData("3", "Y av. %03d", yVal);
             telemetry.addData("4", "Z av. %03d", zVal);
             telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-            driveTicksStraight(.4, 30, 0);
             telemetry.addData("done", heading);
             telemetry.update();
 
 //            turnToHeading(.5, 100);
+            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
+        driveTicksStraight(.4, 100, 0);
+        turn(90);
     }
     void driveTicksStraight(double power, int ticks, double direction) {
         int startLeft = mL2.getCurrentPosition();
         int startRight = mR2.getCurrentPosition();
+        int gyro1 = gyro.getIntegratedZValue(); //calls anglez
         double error = .1;
 //        double initHeading = heading;
-//        if (!(direction == gyro.getIntegratedZValue())){
-//            turn(direction,  gyro.getIntegratedZValue());
-//        }
+        if (!(direction == gyro.getIntegratedZValue())){
+            turn(direction);
+        }
 
         while ((Math.abs(mL2.getCurrentPosition()-startLeft) < ticks) || //if less than distance it's supposed to be
                 (Math.abs(mR2.getCurrentPosition()-startRight) < ticks)) {
-//            double pl = power;
-//            double pr = power;
 
 //            double error = gyro.getIntegratedZValue() - initHeading;
-            if (!(direction == 0)) {
-                if (direction >  gyro.getIntegratedZValue()) {
-                    drive(power + error, power - error);
-                } else if (direction <  gyro.getIntegratedZValue()) {
-                    drive(power - error, power + error);
+//            if (!(direction == 0)) {
+//                if (direction >  gyro1) {
+//                    drive(power + error, power - error);
+//                } else if (direction <  gyro1) {
+//                    drive(power - error, power + error);
+//                }
+//                else {
+//                    drive(power, power);
+//                    telemetry.addData("straight1", power);
+//                    telemetry.update();
+//                }
+//            }
+                if (direction >  gyro1+5) {
+                    double drivepower = (direction-gyro1+10)/100; //set drivepower proportional to distance away from direction
+                    drive(power + drivepower, power - drivepower);
+                } else if (direction <  gyro1-5) {
+                    double drivepower = (direction-gyro1+10)/100; //set drivepower proportional to distance away from direction
+                    drive(power - drivepower, power + drivepower);
                 }
                 else {
                     drive(power, power);
-                    telemetry.addData("broken1", power);
+                    telemetry.addData("straight", power);
                     telemetry.update();
-                    break;
                 }
-            } else {
-                if (direction >  gyro.getIntegratedZValue()) {
-                    drive(power + error, power - error);
-                } else if (direction <  gyro.getIntegratedZValue()) {
-                    drive(power - error, power + error);
-                }
-                else {
-                    drive(power, power);
-                    telemetry.addData("broken2", power);
-                    telemetry.update();
-                    break;
-                }
-            }
         }
 //            pl-=error * error_const*s;
 //            pr+=error * error_const*s;
@@ -133,23 +138,23 @@ public class AutomasMRGyro extends LinearOpMode {
         }
 //        drive(0, 0)
 
-    public void turn(double turndirection, double heading) {
-        heading = gyro.getHeading();
-        double power = .1;
-        telemetry.addData("heading", heading);
-        telemetry.addData("turndirection", turndirection);
-        telemetry.update();
-        while (!(turndirection == heading)){
-            if (turndirection > heading) {
-                drive(power, -power);
-            } else if (turndirection < heading) {
-                drive(-power, power);
+    public void turn(double turndirection) {
+        while ((turndirection > gyro.getIntegratedZValue()+10)||(turndirection < gyro.getIntegratedZValue()-10)){  //while turndirection is outside of anglez+-thresh(2)
+            int gyro1 = gyro.getIntegratedZValue(); //calls anglez
+            if (turndirection >= gyro1+10) { //if turnagle is greater than or = anglez+thres
+                double drivepower = (turndirection-gyro1+50)/100; //set drivepower proportional to distance away from turndirection
+                // Higher the "30" more power to the motors, less precise, Lower slower and more precise but can stall out motors
+                drive(drivepower,-drivepower);
+            } else if (turndirection <= gyro1-10) { //if turnagle is less than or = anglez+thres
+                double drivepower = (gyro1-turndirection+50)/100; //set drivepower proportional to distance away from turndirection.
+                // Higher the "30" more power to the motors, less precise, Lower slower and more precise but can stall out motors
+                drive(-drivepower, drivepower);
             }
-            heading = gyro.getHeading();
-            telemetry.update();
+            else{ //if inside threshold stop driving break
+                drive(0, 0);
+                break;
+            }
         }
-        telemetry.addData("turning", turndirection);
-        telemetry.update();
     }
 
 //            if (gyro.getIntegratedZValue()+180 > desiredHeading+180) {
