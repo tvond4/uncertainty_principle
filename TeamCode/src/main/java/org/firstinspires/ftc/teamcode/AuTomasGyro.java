@@ -13,6 +13,10 @@ import com.qualcomm.robotcore.util.Range;
 
 public class AuTomasGyro extends LinearOpMode {
 
+    // IMPORTANT NOTE:
+    // Right turn from 0 degress = positive angle
+    // Left turn = negative
+
     DcMotor mL1;
     DcMotor mR1;
     DcMotor mL2;

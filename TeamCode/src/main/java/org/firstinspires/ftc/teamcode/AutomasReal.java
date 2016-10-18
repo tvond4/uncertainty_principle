@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name = "automasMRGyro00", group = "automas")
+@Autonomous(name = "automasreal", group = "automas")
 
-public class AutomasMRGyro extends LinearOpMode {
+public class AutomasReal extends LinearOpMode {
 
     DcMotor mL1;
     DcMotor mR1;
@@ -55,37 +55,9 @@ public class AutomasMRGyro extends LinearOpMode {
 
         waitForStart();
 
-//        while (opModeIsActive()) {
-////            curResetState = (gamepad1.a && gamepad1.b);
-////            if (curResetState && !lastResetState) {
-////                gyro.resetZAxisIntegrator();
-////            }
-////            lastResetState = curResetState;
-//
-//            xVal = gyro.rawX();
-//            yVal = gyro.rawY();
-//            zVal = gyro.rawZ();
-//            heading = gyro.getHeading();
-//            angleZ = gyro.getIntegratedZValue();
-//
-//            telemetry.addData(">", "Press A & B to reset Heading.");
-//            telemetry.addData("0", "Heading %03d", heading);
-//            telemetry.addData("1", "Int. Ang. %03d", angleZ);
-//            telemetry.addData("2", "X av. %03d", xVal);
-//            telemetry.addData("3", "Y av. %03d", yVal);
-//            telemetry.addData("4", "Z av. %03d", zVal);
-//            telemetry.update();
-//
-////            turnToHeading(.5, 100);
-//            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-//        }
-        driveTicksStraight(.3, 500, 0);
-//        driveTicksStraight(-.3, 5000, 0);
+        driveTicksStraight(.3, 700, 0);
+        driveTicksStraight(.3, 1300, 50);
 
-//        Thread.sleep(5000);
-//        telemetry.addData("Done done", gyro.getIntegratedZValue());
-//        telemetry.update();
-//        turn(90);
     }
     public double powertodrivepowervariable(double power) {
         double variable = 00;
@@ -93,7 +65,7 @@ public class AutomasMRGyro extends LinearOpMode {
         return variable;
     }
 
-        void driveTicksStraight(double power, int ticks, double direction) {
+    void driveTicksStraight(double power, int ticks, double direction) {
         int startLeft = mL2.getCurrentPosition();
         int startRight = mR2.getCurrentPosition();
         int gyro1 = gyro.getIntegratedZValue(); //calls anglez
@@ -110,23 +82,23 @@ public class AutomasMRGyro extends LinearOpMode {
                 (Math.abs(mR2.getCurrentPosition()-startRight) < ticks)) {
             gyro1 = gyro.getIntegratedZValue();
             double drivepower = (Math.abs(direction-gyro1)+powertodrivepowervariable(power))/100; //set drivepower proportional to distance away from direction
-                if (direction > gyro1+5) {
-                    telemetry.addData("inside, right", gyro1);
-                    telemetry.addData("drivepower:", drivepower);
-                    telemetry.update();
-                  //  double drivepower = (direction-gyro1+10)/100; //set drivepower proportional to distance away from direction
-                    drive(power + drivepower, power - drivepower);
-                } else if (direction < gyro1-5) {
-                    telemetry.addData("inside, left", gyro1);
-                    telemetry.addData("drivepower:", drivepower);
-                    telemetry.update();
-                    drive(power - drivepower, power + drivepower);
-                }
-                else {
-                    drive(power, power);
-                    telemetry.addData("straight", power);
-                    telemetry.update();
-                }
+            if (direction > gyro1+5) {
+                telemetry.addData("inside, right", gyro1);
+                telemetry.addData("drivepower:", drivepower);
+                telemetry.update();
+                //  double drivepower = (direction-gyro1+10)/100; //set drivepower proportional to distance away from direction
+                drive(power + drivepower, power - drivepower);
+            } else if (direction < gyro1-5) {
+                telemetry.addData("inside, left", gyro1);
+                telemetry.addData("drivepower:", drivepower);
+                telemetry.update();
+                drive(power - drivepower, power + drivepower);
+            }
+            else {
+                drive(power, power);
+                telemetry.addData("straight", power);
+                telemetry.update();
+            }
         }
 //            pl-=error * error_const*s;
 //            pr+=error * error_const*s;
@@ -140,7 +112,7 @@ public class AutomasMRGyro extends LinearOpMode {
 //
 //            drive(pl, pr);
 
-        }
+    }
 //        drive(0, 0)
 
     public void turn(double turndirection) {
@@ -178,7 +150,7 @@ public class AutomasMRGyro extends LinearOpMode {
 //        }
 //    }
 
-//
+    //
 //    public void driveStraight(double power, double initHeading, int s) {
 //        double error_const = .2;
 //
