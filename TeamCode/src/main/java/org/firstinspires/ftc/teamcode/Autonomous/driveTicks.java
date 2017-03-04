@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -10,13 +10,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Created by student on 6/2/16.
  */
-@Autonomous(name="automasTTVVV", group="automas")
-public class AuTomas extends LinearOpMode {
+//@Autonomous(name="automasTTVVV", group="automas")
+public class driveTicks extends LinearOpMode {
     DcMotor mL1;
     DcMotor mR1;
     DcMotor mL2;
     DcMotor mR2;
-
 
     public void runOpMode() throws InterruptedException {
         mL1 = hardwareMap.dcMotor.get("mL1");
@@ -46,7 +45,6 @@ public class AuTomas extends LinearOpMode {
         while ((Math.abs(mL2.getCurrentPosition()-startLeft) < ticks) ||
                 (Math.abs(mR2.getCurrentPosition()-startRight) < ticks)) {
             drive(power);
-            telemetry.update();
 
         }
         drive(0);

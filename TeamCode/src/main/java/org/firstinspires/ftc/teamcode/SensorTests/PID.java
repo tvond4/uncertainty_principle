@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.SensorTests;
 
         import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
         import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -10,11 +10,11 @@ package org.firstinspires.ftc.teamcode;
         import com.qualcomm.robotcore.util.ElapsedTime;
         import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name = "straight", group = "automas")
+//@Autonomous(name = "straight", group = "automas")
 /**
  * Created by student on 10/11/16.
  */
-public class straight extends LinearOpMode {
+public class PID extends LinearOpMode {
     DcMotor mL1;
     DcMotor mR1;
     DcMotor mL2;
@@ -56,36 +56,39 @@ public class straight extends LinearOpMode {
 
         waitForStart();
 
+        //your moves
         driveTicksStraight(.4, 100, 90);
     }
     void driveTicksStraight(double power, int ticks, double direction) {
         int startLeft = mL2.getCurrentPosition();
         int startRight = mR2.getCurrentPosition();
-        int gyro1 = gyro.getIntegratedZValue(); //calls anglez
-        double error = .1;
-//        double initHeading = heading;
+        int gyro1;
+
         if (!(direction == gyro.getIntegratedZValue())){
             turn(direction);
         }
 
         while ((Math.abs(mL2.getCurrentPosition()-startLeft) < ticks) || //if less than distance it's supposed to be
                 (Math.abs(mR2.getCurrentPosition()-startRight) < ticks)) {
-
-            if (direction >  gyro1+5) {
-                double drivepower = (direction-gyro1+10)/100; //set drivepower proportional to distance away from direction
+            gyro1 = gyro.getIntegratedZValue();
+            double drivepower = (Math.abs(direction-gyro1)+powertodrivepowervariable(power))/100; //set drivepower proportional to distance away from direction
+            if (direction > gyro1+5) {
                 drive(power + drivepower, power - drivepower);
-            } else if (direction <  gyro1-5) {
-                double drivepower = (direction-gyro1+10)/100; //set drivepower proportional to distance away from direction
+            }
+            else if (direction < gyro1-5) {
                 drive(power - drivepower, power + drivepower);
             }
             else {
                 drive(power, power);
-                telemetry.addData("straight", power);
-                telemetry.update();
             }
         }
-
     }
+    public double powertodrivepowervariable(double power) {
+        double variable = 00;
+        variable = power*100;
+        return variable;
+    }
+
     public void turn(double turndirection) {
         while ((turndirection > gyro.getIntegratedZValue()+10)||(turndirection < gyro.getIntegratedZValue()-10)){  //while turndirection is outside of anglez+-thresh(2)
             int gyro1 = gyro.getIntegratedZValue(); //calls anglez

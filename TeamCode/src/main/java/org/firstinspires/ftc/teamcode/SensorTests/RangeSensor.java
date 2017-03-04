@@ -30,13 +30,14 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode.SensorTests;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorMRRangeSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
@@ -50,8 +51,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  *
  * @see <a href="http://modernroboticsinc.com/range-sensor">MR Range Sensor</a>
  */
-@Autonomous(name = "Range", group = "automas")
-public class range extends LinearOpMode {
+//@Autonomous(name = "Range", group = "automas")
+public class RangeSensor extends LinearOpMode {
 
     ModernRoboticsI2cRangeSensor rangeSensor;
 

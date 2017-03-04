@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.SensorTests;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -13,9 +13,9 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 /**
  * Created by student on 10/8/16.
  */
-@Autonomous(name = "ColorSensor", group = "automas")
+//@Autonomous(name = "ColorSensor", group = "automas")
 
-public class AutomasColorsensor extends LinearOpMode {
+public class ModernColorsensor extends LinearOpMode {
     ColorSensor colorSensor;    // Hardware Device Object
 
     public void runOpMode() throws InterruptedException {

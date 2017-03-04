@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by student on 9/23/16.
  */
-@Autonomous(name="automasshit", group="automas")
+//@Autonomous(name="automasshit", group="automas")
 public class TEST extends LinearOpMode {
 
     DcMotor mL1;
@@ -69,7 +69,7 @@ public class TEST extends LinearOpMode {
 
         mL1.setDirection(DcMotor.Direction.REVERSE);
         mL2.setDirection(DcMotor.Direction.REVERSE);
-//        gyroDrive(DRIVE_SPEED, 100, 0.0);    // Drive FWD 48 inches
+        gyroDrive(DRIVE_SPEED, 100, 0.0);    // Drive FWD 48 inches
         gyroTurn (.4, 90);
 
     }
@@ -83,8 +83,6 @@ public class TEST extends LinearOpMode {
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
-
-            driveTicks(.3, distance);
 
             while (opModeIsActive() && (mL1.isBusy() && mR1.isBusy())) {
 

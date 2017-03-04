@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
@@ -8,16 +8,19 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
 
 /**
  * Created by student on 10/13/16.
  */
-@Autonomous(name = "line", group = "automas")
+//@Autonomous(name = "Dead", group = "automas")
 
 public class line extends LinearOpMode {
     ColorSensor colorSensor1;    // Hardware Device Object
     ModernRoboticsI2cRangeSensor rangeSensor;
     ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    Servo servobutton;
 
     DcMotor mL1;
     DcMotor mR1;
@@ -25,8 +28,10 @@ public class line extends LinearOpMode {
     DcMotor mR2;
 
     public void runOpMode() throws InterruptedException {
-
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro");
+//        cdim = hardwareMap.deviceInterfaceModule.get("dim");
+        servobutton = hardwareMap.servo.get("buttonPusher");
+//        sensorRGB = hardwareMap.colorSensor.get("color");
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
         colorSensor1 = hardwareMap.colorSensor.get("color sensor1");
 
@@ -40,6 +45,7 @@ public class line extends LinearOpMode {
         mR1.setDirection(DcMotor.Direction.FORWARD);
         mR2.setDirection(DcMotor.Direction.FORWARD);
 
+
         telemetry.addData(">", "Gyro Calibrating. Do Not move!");
         telemetry.update();
         gyro.calibrate();
@@ -50,61 +56,46 @@ public class line extends LinearOpMode {
         }
 
         telemetry.addData(">", "Gyro Calibrated.  Press Start.");
-        telemetry.addData("we ready boy", gyro.getIntegratedZValue());
         telemetry.addData("Botta start", gyro.getIntegratedZValue());
         telemetry.update();
+
         waitForStart();
-        driveTicksStraightline(.1, 90);
-    }
-
-    void driveTicksStraightline(double power, double direction) {
-        int s = 1;
-        int t = 0;
-        telemetry.addData("inside", gyro.getIntegratedZValue());
-        telemetry.update();
-
-        while (!(rangeSensor.cmOptical() > 0)) {
-            int gyro1 = gyro.getIntegratedZValue(); //calls anglez
-            if ((colorSensor1.green() > 5) && ((direction < gyro1 + 5) && (direction > gyro1 - 5))) {
-                telemetry.addData("on line", gyro1);
-                telemetry.update();
-                driveTicksStraight(power, 10, 90);
-            } else if ((colorSensor1.green() > 5) && !((direction < gyro1 + 5) && (direction > gyro1 - 5))) {
-                telemetry.addData("Yes No", gyro1);
-                telemetry.update();
-                turnticks(1, 70);
-            }else if (!(colorSensor1.green() > 5) && ((direction < gyro1 + 5) && (direction > gyro1 - 5))) {
-                telemetry.addData("Not Yes", gyro1);
-                telemetry.update();
-                turn(0);
-            }
-            else {
-                telemetry.addData("Nope", gyro1);
-                telemetry.update();
-                if(colorSensor1.green() < 5){
-//                    if(t==2){
-//                        telemetry.addData("broken", t);
-//                        telemetry.update();
-//                        break;
-//                    }
-//                    else {
-//                        if (s == 1) {
-                            telemetry.addData("backingup", s);
-                            telemetry.update();
-                            driveTicksStraight(-.3, 400, gyro1);
-//                        }
-//                        else {
-//                            telemetry.addData("forwarding", s);
-//                            telemetry.update();
-//                            driveTicksStraight(.3, 800, gyro1);
-//                        }
-//                    }
-//                    s *= -1;
-//                    t += 1;
-                }
-            }
+        while(opModeIsActive()) {
+            driveTicksStraight(.3, 3900, 0);
+            sleep(100);
+            turn(90);
+            sleep(100);
+            driveTicksStraight(.1, 1500, 90);
+            sleep(100);
+//            pushbutton();
+            idle();
         }
     }
+//    void pushbutton() {
+//        if (sensorRGB.blue() > sensorRGB.red()) {
+//            telemetry.addData("Button blue", sensorRGB.blue());
+//            telemetry.update();
+//            servobutton.setPosition(1);
+//        } else if (sensorRGB.blue() < sensorRGB.red()) {
+//            telemetry.addData("Button red", sensorRGB.red());
+//            telemetry.update();
+//            servobutton.setPosition(-.1);
+//        } else {
+//            telemetry.addData("nope", sensorRGB.red());
+//            telemetry.update();
+//            servobutton.setPosition(0);
+//        }
+//    }
+    void driveTicksStraightline(double power, double direction) {
+        telemetry.addData("inside", gyro.getIntegratedZValue());
+        telemetry.update();
+        while (!(rangeSensor.cmOptical() > 0)) {
+            int gyro1 = gyro.getIntegratedZValue(); //calls anglez
+            double drivepower = (Math.abs(direction - gyro1) + powertodrivepowervariable(power)) / 100; //set drivepower proportional to distance away from direction
+            drive(power - drivepower, power + drivepower);
+        }
+    }
+
     void turnticks(double turndirection, double ticks) {
         int startLeft = mL2.getCurrentPosition();
         int startRight = mR2.getCurrentPosition();
@@ -118,14 +109,12 @@ public class line extends LinearOpMode {
             }
         }
     }
-    public boolean findline(double power, int ticks, double direction) {
+    void findline() {
         while(colorSensor1.green() < 5){
-            driveTicksStraight(.1, 100, direction);
-            driveTicksStraight(-.1, 200, direction);
+            drive(-.3, -.3);
         }
-        return true;
     }
-        void driveTicksStraight(double power, int ticks, double direction) {
+    void driveTicksStraight(double power, int ticks, double direction) {
         int startLeft = mL2.getCurrentPosition();
         int startRight = mR2.getCurrentPosition();
         int gyro1 = gyro.getIntegratedZValue(); //calls anglez
@@ -165,8 +154,7 @@ public class line extends LinearOpMode {
     }
 
     public double powertodrivepowervariable(double power) {
-        double variable = 00;
-        variable = power * 100;
+        double variable = power * 100;
         return variable;
     }
 

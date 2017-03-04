@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.SensorTests;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -9,14 +9,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name = "please", group = "automas")
+//@Autonomous(name = "gyrotest", group = "automas")
 
-public class shit extends LinearOpMode {
-
-    DcMotor mL1;
-    DcMotor mR1;
-    DcMotor mL2;
-    DcMotor mR2;
+public class ModernGyro extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
 
@@ -26,11 +21,6 @@ public class shit extends LinearOpMode {
         int angleZ = 0;
         boolean lastResetState = false;
         boolean curResetState = false;
-
-        mL1 = hardwareMap.dcMotor.get("mL1");
-        mR1 = hardwareMap.dcMotor.get("mR1");
-        mL2 = hardwareMap.dcMotor.get("mL2");
-        mR2 = hardwareMap.dcMotor.get("mR2");
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro");
 

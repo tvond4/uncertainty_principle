@@ -1,18 +1,24 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name = "automasreal", group = "automas")
+//@Autonomous(name = "automasreal1", group = "automas")
 
-public class AutomasReal extends LinearOpMode {
+public class ProgramV1 extends LinearOpMode {
+    ColorSensor colorSensor1;    // Hardware Device Object
+    ModernRoboticsI2cRangeSensor rangeSensor;
 
     DcMotor mL1;
     DcMotor mR1;
@@ -20,14 +26,14 @@ public class AutomasReal extends LinearOpMode {
     DcMotor mR2;
 
     ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    ColorSensor sensorRGB;
+    DeviceInterfaceModule cdim;
+    Servo servobutton;
+
+    static final int LED_CHANNEL = 3;
 
     public void runOpMode() throws InterruptedException {
 
-        int xVal, yVal, zVal = 0;     // Gyro rate Values
-        int heading = 0;              // Gyro integrated heading
-        int angleZ = 0;
-        boolean lastResetState = false;
-        boolean curResetState = false;
 
         mL1 = hardwareMap.dcMotor.get("mL1");
         mR1 = hardwareMap.dcMotor.get("mR1");
@@ -39,7 +45,15 @@ public class AutomasReal extends LinearOpMode {
         mR1.setDirection(DcMotor.Direction.FORWARD);
         mR2.setDirection(DcMotor.Direction.FORWARD);
 
+
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro");
+        cdim = hardwareMap.deviceInterfaceModule.get("dim");
+        servobutton = hardwareMap.servo.get("buttonPusher");
+        sensorRGB = hardwareMap.colorSensor.get("color");
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
+        colorSensor1 = hardwareMap.colorSensor.get("color sensor1");
+
+        cdim.setDigitalChannelState(LED_CHANNEL, true);
 
         telemetry.addData(">", "Gyro Calibrating. Do Not move!");
         telemetry.update();
@@ -55,9 +69,50 @@ public class AutomasReal extends LinearOpMode {
 
         waitForStart();
 
-        driveTicksStraight(.3, 700, 0);
-        driveTicksStraight(.3, 1300, 50);
+            driveTicksStraight(.3, 200, 0); //-300
+//            sleep(500);
+//            turn(90);
+//            sleep(500);
+//            driveTicksStraight(.3, 100, 90); //-200
+//            sleep(500);
+//            pushbutton();
+//            idle();
 
+    }
+    void stuff() {
+        while(colorSensor1.green() < 5){
+            drive(.1, .1);
+        }
+        turn(90);
+    }
+        void driveTicksStraightline(double power, double direction) {
+        int s = 1;
+        int t = 0;
+        telemetry.addData("inside", gyro.getIntegratedZValue());
+        telemetry.update();
+
+        while (!(rangeSensor.cmOptical() > 0)) {
+            int gyro1 = gyro.getIntegratedZValue(); //calls anglez
+                telemetry.addData("on line", gyro1);
+                telemetry.update();
+                driveTicksStraight(power, 10, 90);
+        }
+    }
+
+    void pushbutton() {
+        if (sensorRGB.blue() > sensorRGB.red()) {
+            telemetry.addData("Button blue", sensorRGB.blue());
+            telemetry.update();
+            servobutton.setPosition(1);
+        } else if (sensorRGB.blue() < sensorRGB.red()) {
+            telemetry.addData("Button red", sensorRGB.red());
+            telemetry.update();
+            servobutton.setPosition(-.1);
+        } else {
+            telemetry.addData("nope", sensorRGB.red());
+            telemetry.update();
+            servobutton.setPosition(0);
+        }
     }
     public double powertodrivepowervariable(double power) {
         double variable = 00;
@@ -70,13 +125,10 @@ public class AutomasReal extends LinearOpMode {
         int startRight = mR2.getCurrentPosition();
         int gyro1 = gyro.getIntegratedZValue(); //calls anglez
 
-//        double initHeading = heading;
 
 //        if ((direction < gyro.getIntegratedZValue()+5)&&(direction > gyro.getIntegratedZValue()-5)){
 //            turn(direction);
 //        }
-//        telemetry.addData("Done turning" , gyro1);
-//        telemetry.update();
 
         while ((Math.abs(mL2.getCurrentPosition()-startLeft) < ticks) || //if less than distance it's supposed to be
                 (Math.abs(mR2.getCurrentPosition()-startRight) < ticks)) {
@@ -100,20 +152,7 @@ public class AutomasReal extends LinearOpMode {
                 telemetry.update();
             }
         }
-//            pl-=error * error_const*s;
-//            pr+=error * error_const*s;
-//
-//            telemetry.addData("Left Power", power);
-//            telemetry.addData("Right Power", power);
-//            telemetry.update();
-
-//            pl = scale(pl);
-//            pr = scale(pr);
-//
-//            drive(pl, pr);
-
     }
-//        drive(0, 0)
 
     public void turn(double turndirection) {
         while ((turndirection > gyro.getIntegratedZValue()+10)||(turndirection < gyro.getIntegratedZValue()-10)){  //while turndirection is outside of anglez+-thresh(2)
@@ -134,44 +173,6 @@ public class AutomasReal extends LinearOpMode {
         }
     }
 
-//            if (gyro.getIntegratedZValue()+180 > desiredHeading+180) {
-//      /* might need a dead zone for turning... */
-//            //Turn left until robot reaches the desiredHeading
-//            while (gyro.getIntegratedZValue()+180 > desiredHeading+180) {
-//                drive(-turnPower, turnPower);
-//            }
-//            drive(0, 0);
-//        } else {
-//            //Turn right until robot reaches the desiredHeading
-//            while (gyro.getIntegratedZValue()+180 < desiredHeading+180) {
-//                drive(turnPower, -turnPower);
-//            }
-//            drive(0, 0);
-//        }
-//    }
-
-    //
-//    public void driveStraight(double power, double initHeading, int s) {
-//        double error_const = .2;
-//
-//        //gyro is too finicky to do integral stuff so just the basic derivative stuff
-//        double pl = power;
-//        double pr = power;
-//
-//        double error = gyro.getIntegratedZValue() - initHeading;
-//
-//        pl-=error * error_const*s;
-//        pr+=error * error_const*s;
-//
-//        pl = scale(pl);
-//        pr = scale(pr);
-//        telemetry.addData("Scale1", scale(pl));
-//        telemetry.addData("Scale2", scale(pr));
-//        telemetry.update();
-//
-//        drive(pl, pr);
-//
-//    }
     void drive(double power1, double power2){
         if(power1 > 1) power1= 1;
         else if (power1<-1) power1 = -1;
@@ -191,63 +192,4 @@ public class AutomasReal extends LinearOpMode {
         else
             return d;
     }
-
-//    public void gyroTurn (  double speed, double angle, double angleZ, double xVal, double yVal, double zVal)
-//            throws InterruptedException {
-//
-//        while (opModeIsActive() && !onHeading(angle, angleZ)){
-////        // keep looping while we are still active, and not on heading.
-////        while (opModeIsActive() && !onHeading(speed, angle, P_TURN_COEFF, angleZ)) {
-////            // Update telemetry & Allow time for other processes to run.
-//            telemetry.update();
-//            idle();
-//        }
-//    }
-//    boolean onHeading(double angle, double angleZ) {
-//        double   error ;
-//        boolean  onTarget = false ;
-//        double leftSpeed;
-//        double rightSpeed;
-//        double turnspeed = .1;
-//        error = getError(angle, angleZ);
-//
-//        // determine turn power based on +/- error
-//        if (getError(angle, angleZ) == 0) {
-//            leftSpeed  = 0.0;
-//            rightSpeed = 0.0;
-//            onTarget = true;
-//        }
-//        else if (getError(angle, angleZ) < 0){
-//
-//            rightSpeed  = -turnspeed;
-//            leftSpeed   = turnspeed;
-//        }
-//        else {
-//            rightSpeed  = turnspeed;
-//            leftSpeed   = -turnspeed;
-//        }
-//
-//        // Send desired speeds to motors.
-//        mL1.setPower(leftSpeed);
-//        mR1.setPower(rightSpeed);
-//        mL2.setPower(leftSpeed);
-//        mR2.setPower(rightSpeed);
-//
-//        // Display it for the driver.
-//        telemetry.addData("Target1", "%5.2f", angle);
-//        telemetry.addData("Err/St1", "%5.2f/%5.2f", error);
-//        telemetry.addData("Speed1.", "%5.2f:%5.2f", leftSpeed, rightSpeed);
-//
-//        return onTarget;
-//    }
-//    public double getError(double targetAngle, double angleZ) {
-//
-//        double robotError;
-//
-//        // calculate error in -179 to +180 range  (
-//        robotError = targetAngle - angleZ;
-//        while (robotError > 180)  robotError -= 360;
-//        while (robotError <= -180) robotError += 360;
-//        return robotError;
-//    }
 }

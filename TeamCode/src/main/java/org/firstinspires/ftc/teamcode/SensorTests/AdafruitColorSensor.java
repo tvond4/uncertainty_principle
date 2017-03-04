@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.SensorTests;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
+import com.qualcomm.robotcore.hardware.Servo;
 
 
 /**
@@ -19,11 +20,12 @@ import com.qualcomm.robotcore.hardware.DigitalChannelController;
  */
 
 
-@Autonomous(name = "AdafruitSensor", group = "automas")
+//@Autonomous(name = "AdafruitSensor", group = "automas")
 public class AdafruitColorSensor extends LinearOpMode {
 
     ColorSensor sensorRGB;
     DeviceInterfaceModule cdim;
+    Servo servobutton;
 
     // we assume that the LED pin of the RGB sensor is connected to
     // digital port 5 (zero indexed).
@@ -51,6 +53,7 @@ public class AdafruitColorSensor extends LinearOpMode {
 
         // get a reference to our DeviceInterfaceModule object.
         cdim = hardwareMap.deviceInterfaceModule.get("dim");
+        servobutton = hardwareMap.servo.get("buttonPusher");
 
         // set the digital channel to output mode.
         // remember, the Adafruit sensor is actually two devices.
@@ -93,9 +96,18 @@ public class AdafruitColorSensor extends LinearOpMode {
             telemetry.addData("Green", sensorRGB.green());
             telemetry.addData("Blue ", sensorRGB.blue());
             telemetry.addData("Hue", hsvValues[0]);
-            if(sensorRGB.blue()>sensorRGB.red()){
-                telemetry.addData("Button blue", sensorRGB.blue());
-            }
+                if (sensorRGB.blue() > sensorRGB.red()) {
+                    telemetry.addData("Button blue", sensorRGB.blue());
+                    telemetry.update();
+                    servobutton.setPosition(1);
+                } else if (sensorRGB.blue() < sensorRGB.red()) {
+                    telemetry.addData("Button red", sensorRGB.red());
+                    telemetry.update();
+                    servobutton.setPosition(-1);
+                } else {
+                    telemetry.addData("nope", sensorRGB.red());
+                    telemetry.update();
+                }
 
             // change the background color to match the color detected by the RGB sensor.
             // pass a reference to the hue, saturation, and value array as an argument
