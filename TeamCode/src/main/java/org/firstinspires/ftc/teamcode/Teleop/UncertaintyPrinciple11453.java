@@ -25,12 +25,8 @@ public class UncertaintyPrinciple11453 extends OpMode{
     DcMotor lift;
     Servo stop1;
     Servo stop2;
-    Servo lift1;
-    Servo lift2;
-    double velocityX;
-    double velocityY;
-    double powerleft;
-    double powerright;
+    Servo button1;
+    Servo button2;
 
     public void init() {
 
@@ -44,8 +40,8 @@ public class UncertaintyPrinciple11453 extends OpMode{
         mlaunch2 = hardwareMap.dcMotor.get("launch2");
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
-        lift1 = hardwareMap.servo.get("lift1");
-        lift2 = hardwareMap.servo.get("lift2");
+        button2 = hardwareMap.servo.get("button2");
+        button1 = hardwareMap.servo.get("button1");
 
 
         mL1.setDirection(DcMotor.Direction.FORWARD);
@@ -59,8 +55,9 @@ public class UncertaintyPrinciple11453 extends OpMode{
         mlaunch2.setDirection(DcMotor.Direction.FORWARD);
         elevator.setDirection(DcMotor.Direction.REVERSE);
 
-        velocityX = 0;
-        velocityY = 0;
+        button2.setPosition(.65);
+        button1.setPosition(.4);
+
     }
 
     public void loop() {
@@ -121,47 +118,51 @@ public class UncertaintyPrinciple11453 extends OpMode{
 
 //        shoot(2.25);
         shoottest(1);
+//        button1.setPosition(.6);
+        button2.setPosition(.25);
+        button1.setPosition(1);
 
-        if(gamepad2.left_bumper) {
-            elevator(1);
+        if(gamepad2.left_stick_y>0) {
+            elevator(-1);
         }
 
 //        else if(gamepad2.right_bumper) {
 //            elevator(.4);
 //        }
-        else if(gamepad2.x) {
-            elevator(-1);
+        else if(gamepad2.left_stick_y<0) {
+            elevator(1);
         }
         else elevator(0);
 
-        if(gamepad2.a) {
+        if(gamepad2.right_bumper) {
             stop1.setPosition(.2);
             stop2.setPosition(.6);
+
         }
         else{
             stop1.setPosition(.6);
             stop2.setPosition(.1);
         }
-        if(gamepad2.right_bumper){
+        if(gamepad2.dpad_up){
             lift(-1);
         }
-        else if(gamepad2.y){
+        else if(gamepad2.dpad_down){
             lift(.2);
         }
-        else if(gamepad2.dpad_down) {
+        else if(gamepad2.dpad_right) {
             lift(.7);
         }
         else{
             lift(0);
         }
-        if(gamepad2.dpad_left) {
-            lift1.setPosition(.5);
-            lift2.setPosition(.5);
-        }
-        else{
-            lift1.setPosition(0);
-            lift2.setPosition(1);
-        }
+//        if(gamepad2.dpad_left) {
+//            lift1.setPosition(.5);
+//            lift2.setPosition(.5);
+//        }
+//        else{
+//            lift1.setPosition(0);
+//            lift2.setPosition(1);
+//        }
 
 
     }
