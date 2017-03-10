@@ -23,7 +23,7 @@ public abstract class AutonomousOperation extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         status("Starting robot....");
 
-        robot = new Robot(hardwareMap, this);
+        robot = new Robot(hardwareMap, this, getCurrentAlliance());
 
         status("Ready to go!");
 
@@ -31,11 +31,39 @@ public abstract class AutonomousOperation extends LinearOpMode {
 
         waitForStart();
         runtime.reset();
+        robot.extendRight();
+
+        status("Running...");
 
         while (opModeIsActive()) {
             telemetry.update();
 
+            robot.moveDistance(1000, 0.5f);
+            sleep(3000);
+
             robot.turnToHeading(blueNegativeFactor * 90, 0.5f);
+            sleep(3000);
+
+            robot.moveUntilCenterLine(0.5f);
+            sleep(3000);
+
+            robot.turnUntilLine(0.5f, true, robot.leftLine);
+            sleep(3000);
+
+            robot.lineFollow();
+            sleep(3000);
+
+            robot.pressButton();
+            robot.extendRight();
+            sleep(3000);
+
+            robot.turnToHeading(0, 0.5f);
+            sleep(3000);
+
+            robot.moveUntilCenterLine(0.5f);
+            sleep(3000);
+
+            requestOpModeStop();
 
             idle();
         }
