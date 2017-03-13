@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name="10SECRED#1", group="automas")
+@Autonomous(name="TenRED#1", group="automas")
 
 public class TenREDAuto1 extends LinearOpMode {
 
@@ -23,6 +23,8 @@ public class TenREDAuto1 extends LinearOpMode {
     DcMotor elevator;
     Servo stop1;
     Servo stop2;
+    Servo button1;
+    Servo button2;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -35,6 +37,8 @@ public class TenREDAuto1 extends LinearOpMode {
         elevator = hardwareMap.dcMotor.get("elevator");
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
+        button2 = hardwareMap.servo.get("button2");
+        button1 = hardwareMap.servo.get("button1");
 
         mL1.setDirection(DcMotor.Direction.FORWARD);
         mL2.setDirection(DcMotor.Direction.FORWARD);
@@ -52,6 +56,13 @@ public class TenREDAuto1 extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        button2.setPosition(.25);
+        button1.setPosition(1);
+
+        shoottest(1);
+
+        sleep(10000);
+
 
         // Step 1:  Drive forward for 3 seconds
         mL1.setPower(.5);
@@ -59,7 +70,7 @@ public class TenREDAuto1 extends LinearOpMode {
         mL2.setPower(.5);
         mR2.setPower(.5);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1)) {
+        while (opModeIsActive() && (runtime.seconds() < 1.2)) {
             telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
             idle();
@@ -71,27 +82,16 @@ public class TenREDAuto1 extends LinearOpMode {
         mR2.setPower(0);
         sleep(2000);
 
-        shoot(2.25);
-        sleep(3000);     // pause for servos to move
-        stop1.setPosition(.6);         //open
-        stop2.setPosition(.5);
+        stop1.setPosition(.2);         //open
+        stop2.setPosition(.6);
         sleep(200);     // pause for servos to move
-        elevator(-.4);
-        sleep(200);
-        stop1.setPosition(.9); //close
-        stop2.setPosition(.2);
-        sleep(1500);     // pause for servos to move
         elevator(-1);
-        sleep(1500);     // pause for servos to move
-        stop1.setPosition(.6);         //open
-        stop2.setPosition(.5);
-        sleep(200);     // pause for servos to move
-        sleep(1000);
-        stop1.setPosition(.9); //close
-        stop2.setPosition(.2);
+        sleep(4000);
+        stop1.setPosition(.6); //close
+        stop2.setPosition(.1);
         sleep(1000);
         elevator(0);
-        shoot(.0);
+        shoot(0);
 
         mL1.setPower(.5);
         mR1.setPower(.5);
@@ -154,4 +154,8 @@ public class TenREDAuto1 extends LinearOpMode {
         elevator.setPower(power);
     }
 
+    void shoottest(double power) {
+        mlaunch1.setPower(power);
+        mlaunch2.setPower(-power);
+    }
 }

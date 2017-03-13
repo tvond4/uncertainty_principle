@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name="RED#2", group="automas")
+@Autonomous(name="Red#2", group="automas")
 
 public class REDAuto2 extends LinearOpMode {
 
@@ -52,11 +52,9 @@ public class REDAuto2 extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        shoottest(1);
 
         // Step 1:  Drive forward for 3 seconds
-
-//        sleep(10000);     // pause for servos to move
-
         mL1.setPower(.5);
         mR1.setPower(.5);
         mL2.setPower(.5);
@@ -75,26 +73,16 @@ public class REDAuto2 extends LinearOpMode {
         sleep(2000);
 
         shoot(2.4);
-        sleep(3000);     // pause for servos to move
-        stop1.setPosition(.6);         //open
-        stop2.setPosition(.5);
+        stop1.setPosition(.2);         //open
+        stop2.setPosition(.6);
         sleep(200);     // pause for servos to move
-        elevator(-.4);
-        sleep(200);
-        stop1.setPosition(.9); //close
-        stop2.setPosition(.2);
-        sleep(1500);     // pause for servos to move
         elevator(-1);
-        sleep(1500);     // pause for servos to move
-        stop1.setPosition(.6);         //open
-        stop2.setPosition(.5);
-        sleep(200);     // pause for servos to move
-        sleep(1000);
-        stop1.setPosition(.9); //close
-        stop2.setPosition(.2);
+        sleep(4000);
+        stop1.setPosition(.6); //close
+        stop2.setPosition(.1);
         sleep(1000);
         elevator(0);
-        shoot(.0);
+        shoot(0);
 
         mL1.setPower(.5);
         mR1.setPower(.5);
@@ -156,5 +144,8 @@ public class REDAuto2 extends LinearOpMode {
     void elevator(double power) {
         elevator.setPower(power);
     }
-
+    void shoottest(double power) {
+        mlaunch1.setPower(power);
+        mlaunch2.setPower(-power);
+    }
 }

@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Created by student on 2/28/17.
  */
 
-@Autonomous(name = "ReadBeacon", group = "automas")
+//@Autonomous(name = "ReadBeacon", group = "automas")
 
 public class ReadBeacon extends LinearOpMode {
 
