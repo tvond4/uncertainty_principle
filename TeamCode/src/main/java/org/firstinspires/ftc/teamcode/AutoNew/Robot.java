@@ -12,9 +12,11 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
@@ -59,10 +61,10 @@ public class Robot {
         mlaunch1 = hardwareMap.dcMotor.get("launch1");
         mlaunch2 = hardwareMap.dcMotor.get("launch2");
 
-        mL1.setDirection(DcMotor.Direction.FORWARD);
-        mL2.setDirection(DcMotor.Direction.FORWARD);
-        mR1.setDirection(DcMotor.Direction.REVERSE);
-        mR2.setDirection(DcMotor.Direction.REVERSE);
+        mL1.setDirection(DcMotor.Direction.REVERSE);
+        mL2.setDirection(DcMotor.Direction.REVERSE);
+        mR1.setDirection(DcMotor.Direction.FORWARD);
+        mR2.setDirection(DcMotor.Direction.FORWARD);
         elevator.setDirection(DcMotor.Direction.REVERSE);
         lift.setDirection(DcMotor.Direction.FORWARD);
         mlaunch1.setDirection(DcMotor.Direction.FORWARD);
@@ -146,7 +148,8 @@ public class Robot {
      * sensor functions
      */
     public float getHeading() {
-        return imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX).firstAngle;
+        Orientation angles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+        return AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle);
     }
 
     public Alliance getRightBeaconColor() {
@@ -168,12 +171,18 @@ public class Robot {
         int targetDistance = mL1.getCurrentPosition() + distanceToMove;
         boolean moveBack = targetDistance < mL1.getCurrentPosition();
 
-        while ((!moveBack && mL1.getCurrentPosition() < targetDistance) || (moveBack && mL1.getCurrentPosition() > targetDistance)) {
-            leftMotors((moveBack ? -power : power));
-            rightMotors((moveBack ? -power : power));
+        while (mL1.getCurrentPosition() < targetDistance) {
+            leftMotors(power);
+            rightMotors(power);
+
+            opMode.telemetry.addData("Encoder", mL1.getCurrentPosition());
+            opMode.telemetry.update();
 
             idle();
         }
+
+        leftMotors(0.0);
+        rightMotors(0.0);
     }
 
     public void turnToHeading(int targetHeading, float power) throws InterruptedException {
@@ -182,28 +191,49 @@ public class Robot {
         while (currentHeading != targetHeading) {
             turnLeft = (currentHeading > targetHeading);
 
-            leftMotors(turnLeft ? power : -power);
-            rightMotors(turnLeft ? -power : power);
+            double usedPower = power;
+            if ((Math.abs(currentHeading - targetHeading)) < 10) {
+                usedPower = power / 2;
+            }
+            if ((Math.abs(currentHeading - targetHeading)) < 6) {
+                usedPower = power / 2;
+            }
+
+            leftMotors(turnLeft ? usedPower : -usedPower);
+            rightMotors(turnLeft ? -usedPower : usedPower);
+
+            opMode.telemetry.addData("currentHeading", currentHeading);
+            opMode.telemetry.addData("targetHeading", targetHeading);
+            opMode.telemetry.update();
 
             currentHeading = getHeading();
 
             idle();
         }
+
+        leftMotors(0.0);
+        rightMotors(0.0);
     }
 
     public void moveUntilCenterLine(float power) throws InterruptedException {
         while (centerLine.getLightDetected() < ODS_WHITE_VALUE) {
+            opMode.telemetry.addData("lights", centerLine.getLightDetected());
+            opMode.telemetry.update();
+
             leftMotors(power);
             rightMotors(power);
 
             idle();
         }
+
+        leftMotors(0.0);
+        rightMotors(0.0);
     }
 
     public void turnUntilLine(float power, boolean turnLeft, OpticalDistanceSensor sensorToTest) throws InterruptedException {
         while (sensorToTest.getLightDetected() < ODS_WHITE_VALUE) {
-            leftMotors((turnLeft ? power : 0.0f));
-            rightMotors((turnLeft ? 0.0f : power));
+            leftMotors((turnLeft ? power : -power));
+            rightMotors((turnLeft ? -power : power));
 
             idle();
         }
