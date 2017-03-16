@@ -1,18 +1,10 @@
 package org.firstinspires.ftc.teamcode.AutoNew;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-public abstract class AutonomousOperation extends LinearOpMode {
+public abstract class AutonomousOperation extends AutonomousBase {
 
     public abstract Alliance getCurrentAlliance();
-
-    private ElapsedTime runtime = new ElapsedTime();
-
-    public Robot robot;
 
     public void status(String str) {
         telemetry.addData("Status", str);
@@ -23,45 +15,44 @@ public abstract class AutonomousOperation extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         status("Starting robot....");
 
-        robot = new Robot(hardwareMap, this, getCurrentAlliance());
+        initThings(hardwareMap, getCurrentAlliance());
 
         status("Ready to go!");
 
         int blueNegativeFactor = (getCurrentAlliance() == Alliance.RED ? 1 : -1);
 
         waitForStart();
-        runtime.reset();
-        //robot.extendRight();
+
+        extendBoth();
+        engageFlywheels();
 
         status("Running...");
 
         while (opModeIsActive()) {
             telemetry.update();
 
-            //robot.moveDistance(1000, 0.5f);
-            //sleep(1000);
+            moveDistance(1750, 0.5f);
+            sleep(1000);
 
-            //robot.turnToHeading(blueNegativeFactor * 90, 0.5f);
-            //sleep(2000);
+            shoot();
+            sleep(1000);
 
-            robot.moveUntilCenterLine(0.25f);
+            turnToHeading(blueNegativeFactor * -105, 0.5f, 3);
+            sleep(1000);
+
+            moveUntilCenterLine(-0.25f);
+            sleep(1000);
+
+            turnToHeading(blueNegativeFactor * -90, 0.5f, 1);
+            sleep(1000);
+
+            moveBackUntilDistance(-0.5f, 6);
+            sleep(1000);
+
+            pressButton();
+            extendRight();
             sleep(3000);
 
-            robot.turnUntilLine(0.4f, false, robot.rightLine);
-            sleep(3000);
-
-            robot.lineFollow();
-            sleep(3000);
-
-            robot.pressButton();
-            robot.extendRight();
-            sleep(3000);
-
-            robot.turnToHeading(0, 0.5f);
-            sleep(3000);
-
-            robot.moveUntilCenterLine(0.5f);
-            sleep(3000);
 
             requestOpModeStop();
 

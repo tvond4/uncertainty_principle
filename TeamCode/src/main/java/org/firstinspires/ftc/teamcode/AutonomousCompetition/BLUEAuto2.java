@@ -23,6 +23,8 @@ public class BLUEAuto2 extends LinearOpMode {
     DcMotor elevator;
     Servo stop1;
     Servo stop2;
+    Servo button1;
+    Servo button2;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -35,6 +37,8 @@ public class BLUEAuto2 extends LinearOpMode {
         elevator = hardwareMap.dcMotor.get("elevator");
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
+        button2 = hardwareMap.servo.get("button2");
+        button1 = hardwareMap.servo.get("button1");
 
         mL1.setDirection(DcMotor.Direction.FORWARD);
         mL2.setDirection(DcMotor.Direction.FORWARD);
@@ -51,6 +55,9 @@ public class BLUEAuto2 extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
+        button2.setPosition(.25);
+        button1.setPosition(1);
 
         shoottest(1);
 
