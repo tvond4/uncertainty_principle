@@ -91,7 +91,9 @@ public abstract class AutonomousBase extends LinearOpMode {
 
         beaconLeftColor = hardwareMap.colorSensor.get("beacon_left_color");
         beaconLeftColor.setI2cAddress(I2cAddr.create8bit(0x4C));
+        beaconLeftColor.enableLed(false);
         beaconRightColor = hardwareMap.colorSensor.get("beacon_right_color");
+        beaconRightColor.enableLed(false);
 
         range = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
 
@@ -143,8 +145,8 @@ public abstract class AutonomousBase extends LinearOpMode {
         shooting functions
      */
     public void engageFlywheels() {
-        mlaunch1.setPower(1);
-        mlaunch2.setPower(-1);
+        mlaunch1.setPower(0.8);
+        mlaunch2.setPower(-0.8);
     }
 
     public void disableFlywheels() {
@@ -170,8 +172,17 @@ public abstract class AutonomousBase extends LinearOpMode {
         return AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle);
     }
 
-    public Alliance getRightBeaconColor() {
-        if (beaconRightColor.red() == 255 || beaconRightColor.blue() == 255) {
+    public Alliance getRightBeaconColor() throws InterruptedException {
+        int i = 0;
+        while (i < 500) {
+            telemetry.addData("r", beaconRightColor.red());
+            telemetry.addData("g", beaconRightColor.green());
+            telemetry.addData("b", beaconRightColor.blue());
+            telemetry.update();
+            i++;
+            Thread.sleep(1);
+        }
+        if (beaconRightColor.red() == 255 || beaconRightColor.blue() == 255 || beaconRightColor.red() == beaconRightColor.blue()) {
             return Alliance.UNKNOWN;
         } else if (beaconRightColor.red() > beaconRightColor.blue()) {
             return Alliance.RED;
@@ -189,12 +200,26 @@ public abstract class AutonomousBase extends LinearOpMode {
         int targetDistance = mR2.getCurrentPosition() + distanceToMove;
         boolean moveBack = targetDistance < mR2.getCurrentPosition();
 
-        while (mR2.getCurrentPosition() < targetDistance) {
-            leftMotors(power);
-            rightMotors(power);
+        while (
+                (!moveBack && mR2.getCurrentPosition() < targetDistance) ||
+                (moveBack && mR2.getCurrentPosition() > targetDistance)) {
+            leftMotors((moveBack ? -power : power));
+            rightMotors((moveBack ? -power : power));
 
             telemetry.addData("Encoder", mR2.getCurrentPosition());
             telemetry.update();
+
+            idle();
+        }
+
+        leftMotors(0.0);
+        rightMotors(0.0);
+    }
+
+    public void moveToDistance(float targetDistance, float power) throws InterruptedException {
+        while (range.getDistance(DistanceUnit.INCH) > targetDistance) {
+            leftMotors(power);
+            rightMotors(power);
 
             idle();
         }
@@ -224,9 +249,13 @@ public abstract class AutonomousBase extends LinearOpMode {
         while (Math.abs(currentHeading - targetHeading) > threshold) {
             turnLeft = (currentHeading > targetHeading);
 
+            /*if ((currentHeading < 0 && targetHeading > 0) || (currentHeading > 0 && targetHeading < 0)) {
+                turnLeft = !turnLeft;
+            }*/
+
             double usedPower = power;
             if ((Math.abs(currentHeading - targetHeading)) < 10) {
-                usedPower = power / 2;
+                usedPower = power / 1.5;
             }
 //            if ((Math.abs(currentHeading - targetHeading)) < 6) {
 //                usedPower = power / 2;
@@ -305,7 +334,15 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
     public void moveBackUntilDistance(float power, int targetDistanceInInches) throws InterruptedException {
-        while (range.getDistance(DistanceUnit.INCH) < targetDistanceInInches) {
+
+        while (targetDistanceInInches - range.getDistance(DistanceUnit.INCH) > 0.5 && targetDistanceInInches - range.getDistance(DistanceUnit.INCH) > 0) {
+            leftMotors(-power);
+            rightMotors(-power);
+
+            idle();
+        }
+
+        while (range.getDistance(DistanceUnit.INCH) - targetDistanceInInches > 0.5 && targetDistanceInInches - range.getDistance(DistanceUnit.INCH) < 0) {
             leftMotors(power);
             rightMotors(power);
 
@@ -349,9 +386,9 @@ public abstract class AutonomousBase extends LinearOpMode {
 
         if (rightColor == Alliance.UNKNOWN) {
             // unknown alliance, just go back then
-            leftMotors(-0.5f);
-            rightMotors(-0.5f);
-            Thread.sleep(3000);
+            leftMotors(0.5f);
+            rightMotors(0.5f);
+            Thread.sleep(1000);
             leftMotors(0.0f);
             rightMotors(0.0f);
             return;
@@ -364,15 +401,17 @@ public abstract class AutonomousBase extends LinearOpMode {
             extendLeft();
         }
 
-        // ram into wall
-        leftMotors(0.5f);
-        rightMotors(0.5f);
-        Thread.sleep(3000);
+        Thread.sleep(400);
 
-        // and go back
+        // ram into wall
         leftMotors(-0.5f);
         rightMotors(-0.5f);
-        Thread.sleep(3000);
+        Thread.sleep(1000);
+
+        // and go back
+        leftMotors(0.5f);
+        rightMotors(0.5f);
+        Thread.sleep(400);
 
         // and stop
         leftMotors(0.0f);

@@ -79,7 +79,6 @@ public class BLUEAuto2 extends LinearOpMode {
         mR2.setPower(0);
         sleep(2000);
 
-        shoot(2.4);
         stop1.setPosition(.2);         //open
         stop2.setPosition(.6);
         sleep(200);     // pause for servos to move

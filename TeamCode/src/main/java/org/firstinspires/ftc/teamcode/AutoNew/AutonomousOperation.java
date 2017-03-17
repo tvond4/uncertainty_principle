@@ -19,12 +19,10 @@ public abstract class AutonomousOperation extends AutonomousBase {
 
         status("Ready to go!");
 
-        int blueNegativeFactor = (getCurrentAlliance() == Alliance.RED ? 1 : -1);
+        boolean isRed = getCurrentAlliance() == Alliance.RED;
+        int blueNegativeFactor = (isRed ? 1 : -1);
 
         waitForStart();
-
-        extendBoth();
-        engageFlywheels();
 
         status("Running...");
 
@@ -34,25 +32,63 @@ public abstract class AutonomousOperation extends AutonomousBase {
             moveDistance(1750, 0.5f);
             sleep(1000);
 
+            extendBoth();
+            engageFlywheels();
+
             shoot();
+
             sleep(1000);
 
-            turnToHeading(blueNegativeFactor * -105, 0.5f, 3);
+            moveDistance(-200, 0.5f);
+
+            sleep(1000);
+
+            turnToHeading((isRed ? -90 : 86), 0.6f, 2);
+            sleep(1000);
+
+            moveDistance(-2100, 0.5f);
+            sleep(1000);
+
+            turnToHeading(blueNegativeFactor * -170, 0.6f, 2);
             sleep(1000);
 
             moveUntilCenterLine(-0.25f);
             sleep(1000);
 
-            turnToHeading(blueNegativeFactor * -90, 0.5f, 1);
+            moveDistance(-150, 0.5f);
             sleep(1000);
 
-            moveBackUntilDistance(-0.5f, 6);
+            turnToHeading((isRed ? -95 : 90), 0.6f, 1);
             sleep(1000);
 
-            pressButton();
-            extendRight();
+            Alliance rightColor = getRightBeaconColor();
+            if (rightColor == alliance) {
+                extendRight();
+
+                Thread.sleep(2000);
+
+                rightMotors(-0.5f);
+                leftMotors(-0.3f);
+
+                Thread.sleep(2000);
+            } else {
+                extendLeft();
+
+                Thread.sleep(2000);
+
+                rightMotors(-0.3f);
+                leftMotors(-0.5f);
+
+                Thread.sleep(2000);
+            }
+
+            leftMotors(0.5f);
+            rightMotors(0.5f);
+            sleep(400);
+            leftMotors(0.0f);
+            rightMotors(0.0f);
+
             sleep(3000);
-
 
             requestOpModeStop();
 

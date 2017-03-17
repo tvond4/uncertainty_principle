@@ -57,13 +57,13 @@ public class TenRedAuto2 extends LinearOpMode {
         waitForStart();
 
 
-        button2.setPosition(.25);
-        button1.setPosition(1);
 
         shoottest(1);
 
         sleep(10000);
 
+        button2.setPosition(.25);
+        button1.setPosition(1);
 
         // Step 1:  Drive forward for 3 seconds
         mL1.setPower(.5);
@@ -83,7 +83,6 @@ public class TenRedAuto2 extends LinearOpMode {
         mR2.setPower(0);
         sleep(2000);
 
-        shoot(2.4);
         stop1.setPosition(.2);         //open
         stop2.setPosition(.6);
         sleep(200);     // pause for servos to move
