@@ -55,8 +55,8 @@ public class UncertaintyPrinciple11453 extends OpMode{
         mlaunch2.setDirection(DcMotor.Direction.FORWARD);
         elevator.setDirection(DcMotor.Direction.REVERSE);
 
-        button2.setPosition(.65);
-        button1.setPosition(.4);
+        //button2.setPosition(.65);
+        //button1.setPosition(.4);
 
     }
 
@@ -118,9 +118,9 @@ public class UncertaintyPrinciple11453 extends OpMode{
 
 //        shoot(2.25);
         shoottest(1);
-//        button1.setPosition(.6);
-        button2.setPosition(.25);
-        button1.setPosition(1);
+        button1.setPosition(.5);
+        button2.setPosition(.3);
+        //button1.setPosition(1);
 
         if(gamepad2.left_stick_y>0) {
             elevator(-1);

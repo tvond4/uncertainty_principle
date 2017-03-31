@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.AutoNew;
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -41,6 +42,7 @@ public abstract class AutonomousBase extends LinearOpMode {
     Servo rightButtonPusher;
 
     BNO055IMU imu;
+    ModernRoboticsI2cGyro gyro;
     ColorSensor beaconLeftColor;
     ColorSensor beaconRightColor;
     ModernRoboticsI2cRangeSensor range;
@@ -50,7 +52,7 @@ public abstract class AutonomousBase extends LinearOpMode {
 
     Alliance alliance;
 
-    public void initThings(HardwareMap hardwareMap, Alliance inAlliance) {
+    public void initThings(HardwareMap hardwareMap, Alliance inAlliance) throws InterruptedException {
         // motors
         mL1 = hardwareMap.dcMotor.get("mL1");
         mL2 = hardwareMap.dcMotor.get("mL2");
@@ -77,7 +79,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         rightButtonPusher = hardwareMap.servo.get("button2");
 
         // sensors
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        /*BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
@@ -87,7 +89,17 @@ public abstract class AutonomousBase extends LinearOpMode {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);*/
+
+        gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("mrimu");
+        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
+        telemetry.update();
+        gyro.calibrate();
+
+        while (gyro.isCalibrating()) {
+            Thread.sleep(50);
+            idle();
+        }
 
         beaconLeftColor = hardwareMap.colorSensor.get("beacon_left_color");
         beaconLeftColor.setI2cAddress(I2cAddr.create8bit(0x4C));
@@ -117,27 +129,32 @@ public abstract class AutonomousBase extends LinearOpMode {
         mR2.setPower(power);
     }
 
+    public final double LEFT_PUSHER_UP_POSITION = .4;
+    public final double LEFT_PUSHER_DOWN_POSITION = .55;
+    public final double RIGHT_PUSHER_UP_POSITION = .65;
+    public final double RIGHT_PUSHER_DOWN_POSITION = .3;
+
     public void retractBoth() throws InterruptedException {
-        leftButtonPusher.setPosition(.4);
-        rightButtonPusher.setPosition(.65);
+        leftButtonPusher.setPosition(LEFT_PUSHER_UP_POSITION);
+        rightButtonPusher.setPosition(RIGHT_PUSHER_UP_POSITION);
         Thread.sleep(300);
     }
 
     public void extendLeft() throws InterruptedException {
-        leftButtonPusher.setPosition(1);
-        rightButtonPusher.setPosition(.65);
+        leftButtonPusher.setPosition(LEFT_PUSHER_DOWN_POSITION);
+        rightButtonPusher.setPosition(RIGHT_PUSHER_UP_POSITION);
         Thread.sleep(300);
     }
 
     public void extendRight() throws InterruptedException {
-        leftButtonPusher.setPosition(.4);
-        rightButtonPusher.setPosition(.25);
+        leftButtonPusher.setPosition(LEFT_PUSHER_UP_POSITION);
+        rightButtonPusher.setPosition(RIGHT_PUSHER_DOWN_POSITION);
         Thread.sleep(300);
     }
 
     public void extendBoth() throws InterruptedException {
-        leftButtonPusher.setPosition(1);
-        rightButtonPusher.setPosition(.25);
+        leftButtonPusher.setPosition(LEFT_PUSHER_DOWN_POSITION);
+        rightButtonPusher.setPosition(RIGHT_PUSHER_DOWN_POSITION);
         Thread.sleep(300);
     }
 
@@ -168,8 +185,12 @@ public abstract class AutonomousBase extends LinearOpMode {
      * sensor functions
      */
     public float getHeading() {
-        Orientation angles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        return AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle);
+        //Orientation angles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+        float thing = gyro.getHeading();
+        if (thing > 180) {
+            thing -= 360;
+        }
+        return thing * -1;
     }
 
     public Alliance getRightBeaconColor() throws InterruptedException {
@@ -216,6 +237,39 @@ public abstract class AutonomousBase extends LinearOpMode {
         rightMotors(0.0);
     }
 
+    public void moveDistance_smooth(int distanceToMove, float power) throws InterruptedException {
+        int targetDistance = mR2.getCurrentPosition() + distanceToMove;
+        int distanceToTarget;
+        boolean moveBack = targetDistance < mR2.getCurrentPosition();
+
+        while (
+                (!moveBack && mR2.getCurrentPosition() < targetDistance) ||
+                        (moveBack && mR2.getCurrentPosition() > targetDistance)) {
+            distanceToTarget = Math.abs(targetDistance - mR2.getCurrentPosition());
+
+            double powerToUse = power;
+
+            if (distanceToTarget < 200) {
+                powerToUse = power / 1.5;
+            }
+
+            if (powerToUse < 0.3) {
+                powerToUse = 0.3;
+            }
+
+            leftMotors((moveBack ? -powerToUse : powerToUse));
+            rightMotors((moveBack ? -powerToUse : powerToUse));
+
+            telemetry.addData("Encoder", mR2.getCurrentPosition());
+            telemetry.update();
+
+            idle();
+        }
+
+        leftMotors(0.0);
+        rightMotors(0.0);
+    }
+
     public void moveToDistance(float targetDistance, float power) throws InterruptedException {
         while (range.getDistance(DistanceUnit.INCH) > targetDistance) {
             leftMotors(power);
@@ -243,26 +297,27 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
 
-    public void turnToHeading(int targetHeading, float power, int threshold) throws InterruptedException {
+    public void turnToHeading(int targetHeading, float power, int threshold, boolean negativeSpin) throws InterruptedException {
         float currentHeading = getHeading();
         boolean turnLeft = false;
         while (Math.abs(currentHeading - targetHeading) > threshold) {
             turnLeft = (currentHeading > targetHeading);
-
-            /*if ((currentHeading < 0 && targetHeading > 0) || (currentHeading > 0 && targetHeading < 0)) {
-                turnLeft = !turnLeft;
-            }*/
+            float distanceToTarget = Math.abs(currentHeading - targetHeading);
 
             double usedPower = power;
             if ((Math.abs(currentHeading - targetHeading)) < 10) {
-                usedPower = power / 1.5;
+                usedPower = power / 1.7;
             }
-//            if ((Math.abs(currentHeading - targetHeading)) < 6) {
-//                usedPower = power / 2;
-//            }
 
-            leftMotors(turnLeft ? -usedPower : usedPower);
-            rightMotors(turnLeft ? usedPower : -usedPower);
+            /*
+            usedPower = distanceToTarget * 0.01;
+            if (usedPower < 0.3) {
+                userPower = 0.3;
+            }
+             */
+
+            leftMotors(turnLeft ? -usedPower : (negativeSpin ? usedPower : 0));
+            rightMotors(turnLeft ? (negativeSpin ? usedPower : 0) : -usedPower);
 
             telemetry.addData("currentHeading", currentHeading);
             telemetry.addData("targetHeading", targetHeading);

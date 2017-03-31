@@ -58,7 +58,7 @@ public class TenREDAuto1 extends LinearOpMode {
 
         shoottest(1);
 
-        sleep(10000);
+        sleep(7000);
 
         button2.setPosition(.25);
         button1.setPosition(1);
