@@ -6,6 +6,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -43,11 +44,11 @@ public abstract class AutonomousBase extends LinearOpMode {
 
     Servo stop1;
     Servo stop2;
-    Servo sidePusher;
+    CRServo sidePusher;
+    CRServo sideWheel;
 
     ModernRoboticsI2cGyro gyro;
     ColorSensor beaconSideColor;
-    ModernRoboticsI2cRangeSensor range;
     OpticalDistanceSensor centerLine;
 
     Alliance alliance;
@@ -75,7 +76,8 @@ public abstract class AutonomousBase extends LinearOpMode {
         // servos
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
-        sidePusher = hardwareMap.servo.get("side_pusher");
+        sidePusher = hardwareMap.crservo.get("side_pusher");
+        sideWheel = hardwareMap.crservo.get("side_wheel");
 
         // sensors
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("mrimu");
@@ -89,9 +91,8 @@ public abstract class AutonomousBase extends LinearOpMode {
         }
 
         beaconSideColor = hardwareMap.colorSensor.get("beacon_side_color");
+        beaconSideColor.setI2cAddress(I2cAddr.create8bit(0x4c));
         beaconSideColor.enableLed(false);
-
-        range = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
 
         centerLine = hardwareMap.opticalDistanceSensor.get("center_line");
 
@@ -111,14 +112,32 @@ public abstract class AutonomousBase extends LinearOpMode {
         mR2.setPower(power);
     }
 
-    public void retractPressingWheel() throws InterruptedException {
-        sidePusher.setPosition(1.0);
-        sleep(1000);
+    public void retractSidePusher() throws InterruptedException {
+        sidePusher.setDirection(DcMotorSimple.Direction.FORWARD);
+        sidePusher.setPower(1.0);
+        sleep(2000);
+        sidePusher.setPower(0.0);
     }
 
-    public void extendPressingWheel() throws InterruptedException {
-        sidePusher.setPosition(0.0);
-        sleep(1000);
+    public void extendSidePusher() throws InterruptedException {
+        sidePusher.setDirection(DcMotorSimple.Direction.REVERSE);
+        sidePusher.setPower(1.0);
+        sleep(2000);
+        sidePusher.setPower(0.0);
+    }
+
+    public void retractSideWheel() throws InterruptedException {
+        sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        sideWheel.setPower(1.0);
+        sleep(2000);
+        sideWheel.setPower(0.0);
+    }
+
+    public void extendSideWheel() throws InterruptedException {
+        sideWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        sideWheel.setPower(1.0);
+        sleep(2000);
+        sideWheel.setPower(0.0);
     }
 
     /*
@@ -233,7 +252,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         rightMotors(0.0);
     }
 
-    public void moveToDistance(float targetDistance, float power) throws InterruptedException {
+    /*public void moveToDistance(float targetDistance, float power) throws InterruptedException {
         while (range.getDistance(DistanceUnit.INCH) > targetDistance) {
             leftMotors(power);
             rightMotors(power);
@@ -243,7 +262,7 @@ public abstract class AutonomousBase extends LinearOpMode {
 
         leftMotors(0.0);
         rightMotors(0.0);
-    }
+    }*/
 
     public void shoot() throws InterruptedException {
         openStops();
@@ -342,7 +361,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         }
     }
 
-    public void moveBackUntilDistance(float power, int targetDistanceInInches) throws InterruptedException {
+    /*public void moveBackUntilDistance(float power, int targetDistanceInInches) throws InterruptedException {
         while (targetDistanceInInches - range.getDistance(DistanceUnit.INCH) > 0.5 && targetDistanceInInches - range.getDistance(DistanceUnit.INCH) > 0) {
             leftMotors(-power);
             rightMotors(-power);
@@ -359,7 +378,7 @@ public abstract class AutonomousBase extends LinearOpMode {
 
         leftMotors(0.0f);
         rightMotors(0.0f);
-    }
+    }*/
 
     public void pressButton() throws InterruptedException {
         moveDistance_smooth(-300, 0.5f);
@@ -375,8 +394,8 @@ public abstract class AutonomousBase extends LinearOpMode {
         if (sideColor != alliance) {
             moveDistance_smooth(500, 0.5f);
         }
-        extendPressingWheel();
+        extendSidePusher();
         sleep(1000);
-        retractPressingWheel();
+        retractSidePusher();
     }
 }

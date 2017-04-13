@@ -27,17 +27,14 @@ public abstract class AutonomousOperation extends AutonomousBase {
         status("Running...");
 
         while (opModeIsActive()) {
+            moveDistance(1000, 0.5f);
+            sleep(2000);
+
+            turnToHeading(60, 0.5f, 2, true);
+            sleep(2000);
+
             moveUntilCenterLine(0.5f);
-            sleep(1000);
-
-            pressButton();
-            sleep(1000);
-
-            moveUntilCenterLine(0.5f);
-            sleep(1000);
-
-            pressButton();
-            sleep(1000);
+            sleep(2000);
 
             requestOpModeStop();
 
