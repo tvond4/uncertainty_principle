@@ -337,13 +337,13 @@ public abstract class AutonomousBase extends LinearOpMode {
         rightMotors(0.0);
     }
 
-    public void moveUntilCenterLine(float power) throws InterruptedException {
+    public void moveUntilCenterLine(float leftPower, float rightPower) throws InterruptedException {
         while (centerLine.getLightDetected() < ODS_WHITE_VALUE) {
             telemetry.addData("lights", centerLine.getLightDetected());
             telemetry.update();
 
-            leftMotors(power);
-            rightMotors(power);
+            leftMotors(leftPower);
+            rightMotors(rightPower);
 
             idle();
         }

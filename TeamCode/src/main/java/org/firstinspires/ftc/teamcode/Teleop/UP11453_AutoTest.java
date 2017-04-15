@@ -83,10 +83,10 @@ public class UP11453_AutoTest extends OpMode{
 //        drive(power-turn,power+turn);
         //drive(power, power);
         if( gamepad1.left_stick_y>.2){
-            drive(-0.8,-1);
+            drive(-1,-0.6);
         }
         else if( gamepad1.left_stick_y<-.2){
-            drive(0.8,1);
+            drive(1,0.6);
         }
         else if( gamepad1.right_stick_x>.2){
             drive(-1,1);

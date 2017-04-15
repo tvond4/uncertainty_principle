@@ -30,10 +30,18 @@ public abstract class AutonomousOperation extends AutonomousBase {
             moveDistance(1000, 0.5f);
             sleep(2000);
 
+            sleep(2000);
+
             turnToHeading(60, 0.5f, 2, true);
             sleep(2000);
 
-            moveUntilCenterLine(0.5f);
+            moveDistance(1000, 0.5f);
+            sleep(2000);
+
+            moveUntilCenterLine(0.6f, 1.0f);
+            sleep(2000);
+
+            pressButton();
             sleep(2000);
 
             requestOpModeStop();
