@@ -122,14 +122,14 @@ public abstract class AutonomousBase extends LinearOpMode {
     public void extendSidePusher() throws InterruptedException {
         sidePusher.setDirection(DcMotorSimple.Direction.REVERSE);
         sidePusher.setPower(1.0);
-        sleep(2000);
+        sleep(3000);
         sidePusher.setPower(0.0);
     }
 
     public void retractSideWheel() throws InterruptedException {
         sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         sideWheel.setPower(1.0);
-        sleep(2000);
+        sleep(3000);
         sideWheel.setPower(0.0);
     }
 
@@ -154,13 +154,13 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
     public void openStops() {
-        stop1.setPosition(.2);
+        stop1.setPosition(.3);
         stop2.setPosition(.6);
     }
 
     public void closeStops() {
         stop1.setPosition(.6);
-        stop2.setPosition(.1);
+        stop2.setPosition(.0);
     }
 
     /*
@@ -381,7 +381,7 @@ public abstract class AutonomousBase extends LinearOpMode {
     }*/
 
     public void pressButton() throws InterruptedException {
-        moveDistance_smooth(-300, 0.5f);
+        moveDistance_smooth(-400, 0.5f);
         sleep(1000);
 
         Alliance sideColor = getSideBeaconColor();
