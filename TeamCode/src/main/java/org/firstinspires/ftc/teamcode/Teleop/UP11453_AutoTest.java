@@ -4,18 +4,13 @@ package org.firstinspires.ftc.teamcode.Teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.CRServoImpl;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
-/**
- * Created by student on 6/2/16.
- */
-@TeleOp(name="TeleOp6", group="Teleop")
-
-public class UncertaintyPrinciple11453 extends OpMode{
+@TeleOp(name="TeleOp6_AutoTest", group="Teleop")
+public class UP11453_AutoTest extends OpMode{
     DcMotor mL1;
     DcMotor mR1;
     DcMotor mL2;
@@ -46,7 +41,6 @@ public class UncertaintyPrinciple11453 extends OpMode{
     }
 
     public void init() {
-
         mL1 = hardwareMap.dcMotor.get("mL1");
         mR1 = hardwareMap.dcMotor.get("mR1");
         mL2 = hardwareMap.dcMotor.get("mL2");
@@ -89,10 +83,10 @@ public class UncertaintyPrinciple11453 extends OpMode{
 //        drive(power-turn,power+turn);
         //drive(power, power);
         if( gamepad1.left_stick_y>.2){
-            drive(-1,-1);
+            drive(-1,-0.6);
         }
         else if( gamepad1.left_stick_y<-.2){
-            drive(1,1);
+            drive(1,0.6);
         }
         else if( gamepad1.right_stick_x>.2){
             drive(-1,1);
@@ -146,20 +140,20 @@ public class UncertaintyPrinciple11453 extends OpMode{
         }
         else elevator(0);
 
-        if (gamepad2.y) {
+        if (gamepad1.y) {
             sidePusher.setDirection(DcMotorSimple.Direction.REVERSE);
             sidePusher.setPower(1.0);
-        } else if (gamepad2.a) {
+        } else if (gamepad1.a) {
             sidePusher.setDirection(DcMotorSimple.Direction.FORWARD);
             sidePusher.setPower(1.0);
         } else {
             sidePusher.setPower(0.0);
         }
 
-        if (gamepad2.x) {
+        if (gamepad1.x) {
             sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
             sideWheel.setPower(1.0);
-        } else if (gamepad2.b) {
+        } else if (gamepad1.b) {
             sideWheel.setDirection(DcMotorSimple.Direction.FORWARD);
             sideWheel.setPower(1.0);
         } else {
@@ -167,13 +161,13 @@ public class UncertaintyPrinciple11453 extends OpMode{
         }
 
         if(gamepad2.right_bumper) {
-            stop1.setPosition(.0);
+            stop1.setPosition(.2);
             stop2.setPosition(.6);
 
         }
         else{
-            stop1.setPosition(.55);
-            stop2.setPosition(.15);
+            stop1.setPosition(.6);
+            stop2.setPosition(.1);
         }
         if(gamepad2.dpad_up){
             lift(-1);

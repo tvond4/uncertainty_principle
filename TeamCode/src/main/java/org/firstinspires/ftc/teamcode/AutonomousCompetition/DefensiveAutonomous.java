@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name="TenBLUE#1", group="automas")
+@Autonomous(name="Defensive Autonomous", group="automas")
 
-public class TensecBlueAuto1 extends LinearOpMode {
+public class DefensiveAutonomous extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime     runtime = new ElapsedTime();
@@ -56,33 +56,18 @@ public class TensecBlueAuto1 extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        shoottest(1);
 
+        shoottest(1);
+        
         sleep(7000);
 
         button2.setPosition(.25);
         button1.setPosition(1);
 
-        // Step 1:  Drive forward for 3 seconds
-
-        mL1.setPower(.5);
-        mR1.setPower(.5);
-        mL2.setPower(.5);
-        mR2.setPower(.5);
-        runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1.2)) {
-            telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
-            telemetry.update();
-            idle();
-        }
-
-        mL1.setPower(0);
-        mR1.setPower(0);
-        mL2.setPower(0);
-        mR2.setPower(0);
+        driveForTime(1.5, .5);
         sleep(2000);
 
-        stop1.setPosition(.2);         //open
+        /*stop1.setPosition(.2);         //open
         stop2.setPosition(.6);
         sleep(200);     // pause for servos to move
         elevator(-1);
@@ -91,36 +76,29 @@ public class TensecBlueAuto1 extends LinearOpMode {
         stop2.setPosition(.1);
         sleep(1000);
         elevator(0);
-        shoot(0);
+        shoot(0);*/
 
-        mL1.setPower(.5);
-        mR1.setPower(.5);
-        mL2.setPower(.5);
-        mR2.setPower(.5);
-        runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < .3)) {
-            telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
-            telemetry.update();
-            idle();
-        }
-        // Step 2:  Spin right for 1.3 seconds
+        driveForTime(.5, .5);
+
+        // Spin right for 1 second
         mL1.setPower(-1);
         mR1.setPower(1);
         mL2.setPower(-1);
         mR2.setPower(1);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < .9)) {
+        while (opModeIsActive() && (runtime.seconds() < 1)) {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
             idle();
         }
 
+        // smash into back wall
         mL1.setPower(-.7);
         mR1.setPower(-.7);
         mL2.setPower(-.7);
         mR2.setPower(-.7);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < .7)) {
+        while (opModeIsActive() && (runtime.seconds() < 2)) {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
             idle();
@@ -138,13 +116,26 @@ public class TensecBlueAuto1 extends LinearOpMode {
         sleep(1000);
         idle();
     }
-    void shoottest(double power) {
-        mlaunch1.setPower(power);
-        mlaunch2.setPower(-power);
+
+    void driveForTime(double seconds, double power) throws InterruptedException {
+        mL1.setPower(power);
+        mR1.setPower(power);
+        mL2.setPower(power);
+        mR2.setPower(power);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < seconds)) {
+            telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
+            telemetry.update();
+            idle();
+        }
+
+        mL1.setPower(0);
+        mR1.setPower(0);
+        mL2.setPower(0);
+        mR2.setPower(0);
     }
 
     void shoot(double power) {
-
         double voltage = hardwareMap.voltageSensor.get("Motor Controller 1").getVoltage();
 //        telemetry.addData("voltage", voltage);
         //read voltage, set power equal to a constant voltage
@@ -159,5 +150,8 @@ public class TensecBlueAuto1 extends LinearOpMode {
     void elevator(double power) {
         elevator.setPower(power);
     }
-
+    void shoottest(double power) {
+        mlaunch1.setPower(power);
+        mlaunch2.setPower(-power);
+    }
 }
