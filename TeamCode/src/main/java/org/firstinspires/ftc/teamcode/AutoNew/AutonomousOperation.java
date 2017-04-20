@@ -23,34 +23,33 @@ public abstract class AutonomousOperation extends AutonomousBase {
         int blueNegativeFactor = (isRed ? 1 : -1);
 
         waitForStart();
+        engageFlywheels();
 
         status("Running...");
 
         while (opModeIsActive()) {
-            moveDistance(1000, 0.5f);
+            moveDistance(1400, 0.5f);
             sleep(1000);
 
-            //sleep(2000);
+            shoot();
+            sleep(2000);
 
-            turnToHeading(55, 0.4f, 1, true);
+            turnToHeading((isRed ? 45 : 135), 0.45f, 1, true);
             sleep(1000);
 
-            moveDistance(2700, 0.4f);
+            moveDistance(blueNegativeFactor * 3900, 0.4f);
             sleep(1000);
 
-            turnToHeading(45, 0.4f, 1, true);
+            turnToHeading((isRed ? 2 : 164), 0.5f, 1, true);
             sleep(2000);
 
-            moveDistance(200, 0.4f);
+            moveUntilCenterLine(blueNegativeFactor * 0.45f, blueNegativeFactor * 0.45f);
             sleep(2000);
 
-            turnToHeading(2, 0.5f, 1, true);
+            moveUntilCenterLine(blueNegativeFactor * -0.3f, blueNegativeFactor * -0.3f);
             sleep(2000);
 
-            moveUntilCenterLine(0.5f, 0.5f);
-            sleep(2000);
-
-            turnToHeading(0, 0.5f, 0, true);
+            turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
             sleep(2000);
 
             pressButton();

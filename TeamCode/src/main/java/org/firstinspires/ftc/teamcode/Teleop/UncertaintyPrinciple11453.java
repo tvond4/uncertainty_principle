@@ -167,13 +167,13 @@ public class UncertaintyPrinciple11453 extends OpMode{
         }
 
         if(gamepad2.right_bumper) {
-            stop1.setPosition(.2);
+            stop1.setPosition(.0);
             stop2.setPosition(.6);
 
         }
         else{
-            stop1.setPosition(.6);
-            stop2.setPosition(.1);
+            stop1.setPosition(.55);
+            stop2.setPosition(.15);
         }
         if(gamepad2.dpad_up){
             lift(-1);

@@ -115,26 +115,26 @@ public abstract class AutonomousBase extends LinearOpMode {
     public void retractSidePusher() throws InterruptedException {
         sidePusher.setDirection(DcMotorSimple.Direction.FORWARD);
         sidePusher.setPower(1.0);
-        sleep(2000);
+        sleep(4000);
         sidePusher.setPower(0.0);
     }
 
     public void extendSidePusher() throws InterruptedException {
         sidePusher.setDirection(DcMotorSimple.Direction.REVERSE);
         sidePusher.setPower(1.0);
-        sleep(3000);
+        sleep(4000);
         sidePusher.setPower(0.0);
     }
 
     public void retractSideWheel() throws InterruptedException {
-        sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        sideWheel.setDirection(DcMotorSimple.Direction.FORWARD);
         sideWheel.setPower(1.0);
-        sleep(3000);
+        sleep(2000);
         sideWheel.setPower(0.0);
     }
 
     public void extendSideWheel() throws InterruptedException {
-        sideWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         sideWheel.setPower(1.0);
         sleep(2000);
         sideWheel.setPower(0.0);
@@ -154,13 +154,13 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
     public void openStops() {
-        stop1.setPosition(.3);
+        stop1.setPosition(.0);
         stop2.setPosition(.6);
     }
 
     public void closeStops() {
-        stop1.setPosition(.6);
-        stop2.setPosition(.0);
+        stop1.setPosition(.55);
+        stop2.setPosition(.15);
     }
 
     /*
@@ -266,13 +266,13 @@ public abstract class AutonomousBase extends LinearOpMode {
 
     public void shoot() throws InterruptedException {
         openStops();
-        Thread.sleep(200);
+        sleep(200);
 
         elevator.setPower(1);
-        Thread.sleep(3000);
+        sleep(3000);
 
         closeStops();
-        Thread.sleep(1000);
+        sleep(1000);
 
         elevator.setPower(0);
         disableFlywheels();
@@ -381,7 +381,8 @@ public abstract class AutonomousBase extends LinearOpMode {
     }*/
 
     public void pressButton() throws InterruptedException {
-        moveDistance_smooth(-400, 0.5f);
+        int blueNegativeFactor = (alliance == Alliance.RED ? 1 : -1);
+        moveDistance_smooth(blueNegativeFactor * -300, 0.5f);
         sleep(1000);
 
         Alliance sideColor = getSideBeaconColor();
@@ -392,7 +393,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         }
 
         if (sideColor != alliance) {
-            moveDistance_smooth(500, 0.5f);
+            moveDistance_smooth(blueNegativeFactor * 300, 0.5f);
         }
         extendSidePusher();
         sleep(1000);
