@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.AutoNew;
 
-import com.qualcomm.hardware.adafruit.BNO055IMU;
-import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
+import android.util.Log;
+
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -15,13 +13,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.teamcode.Consts;
 
 public abstract class AutonomousBase extends LinearOpMode {
 
@@ -45,7 +37,8 @@ public abstract class AutonomousBase extends LinearOpMode {
     Servo stop1;
     Servo stop2;
     CRServo sidePusher;
-    CRServo sideWheel;
+    CRServo sideFrontWheel;
+    CRServo sideBackWheel;
 
     ModernRoboticsI2cGyro gyro;
     ColorSensor beaconSideColor;
@@ -77,7 +70,8 @@ public abstract class AutonomousBase extends LinearOpMode {
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
         sidePusher = hardwareMap.crservo.get("side_pusher");
-        sideWheel = hardwareMap.crservo.get("side_wheel");
+        sideFrontWheel = hardwareMap.crservo.get("side_front_wheel");
+        sideBackWheel = hardwareMap.crservo.get("side_back_wheel");
 
         // sensors
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("mrimu");
@@ -126,18 +120,50 @@ public abstract class AutonomousBase extends LinearOpMode {
         sidePusher.setPower(0.0);
     }
 
-    public void retractSideWheel() throws InterruptedException {
-        sideWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        sideWheel.setPower(1.0);
+    public void engageSideWheelServo(CRServo servo) throws InterruptedException  {
+        servo.setPower(1.0);
         sleep(2000);
-        sideWheel.setPower(0.0);
+        servo.setPower((servo.equals(sideBackWheel) ? Consts.SIDE_BACK_WHEEL_STOP_POWER : 0.0));
     }
 
-    public void extendSideWheel() throws InterruptedException {
-        sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        sideWheel.setPower(1.0);
+    public void extendSideFrontWheel() throws InterruptedException {
+        sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        engageSideWheelServo(sideFrontWheel);
+    }
+
+    public void retractSideFrontWheel() throws InterruptedException {
+        sideFrontWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        engageSideWheelServo(sideFrontWheel);
+    }
+
+    public void extendSideBackWheel() throws InterruptedException {
+        sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        engageSideWheelServo(sideBackWheel);
+    }
+
+    public void retractSideBackWheel() throws InterruptedException {
+        sideBackWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        engageSideWheelServo(sideBackWheel);
+    }
+
+    public void extendSideWheels() throws InterruptedException {
+        sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        sideFrontWheel.setPower(0.9);
+        sideBackWheel.setPower(1.0);
         sleep(2000);
-        sideWheel.setPower(0.0);
+        sideFrontWheel.setPower(0.0);
+        sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
+    }
+
+    public void retractSideWheels() throws InterruptedException {
+        sideFrontWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        sideBackWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        sideFrontWheel.setPower(0.9);
+        sideBackWheel.setPower(1.0);
+        sleep(2000);
+        sideFrontWheel.setPower(0.0);
+        sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
     }
 
     /*
@@ -200,16 +226,16 @@ public abstract class AutonomousBase extends LinearOpMode {
      * higher-level functions
      */
     public void moveDistance(int distanceToMove, float power) throws InterruptedException {
-        int targetDistance = mR2.getCurrentPosition() + distanceToMove;
-        boolean moveBack = targetDistance < mR2.getCurrentPosition();
+        int targetDistance = mL2.getCurrentPosition() + distanceToMove;
+        boolean moveBack = targetDistance < mL2.getCurrentPosition();
 
         while (
-                (!moveBack && mR2.getCurrentPosition() < targetDistance) ||
-                (moveBack && mR2.getCurrentPosition() > targetDistance)) {
+                (!moveBack && mL2.getCurrentPosition() < targetDistance) ||
+                (moveBack && mL2.getCurrentPosition() > targetDistance)) {
             leftMotors((moveBack ? -power : power));
             rightMotors((moveBack ? -power : power));
 
-            telemetry.addData("Encoder", mR2.getCurrentPosition());
+            telemetry.addData("Encoder", mL2.getCurrentPosition());
             telemetry.update();
 
             idle();
@@ -220,14 +246,14 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
     public void moveDistance_smooth(int distanceToMove, float power) throws InterruptedException {
-        int targetDistance = mR2.getCurrentPosition() + distanceToMove;
+        int targetDistance = mL2.getCurrentPosition() + distanceToMove;
         int distanceToTarget;
-        boolean moveBack = targetDistance < mR2.getCurrentPosition();
+        boolean moveBack = targetDistance < mL2.getCurrentPosition();
 
         while (
-                (!moveBack && mR2.getCurrentPosition() < targetDistance) ||
-                        (moveBack && mR2.getCurrentPosition() > targetDistance)) {
-            distanceToTarget = Math.abs(targetDistance - mR2.getCurrentPosition());
+                (!moveBack && mL2.getCurrentPosition() < targetDistance) ||
+                        (moveBack && mL2.getCurrentPosition() > targetDistance)) {
+            distanceToTarget = Math.abs(targetDistance - mL2.getCurrentPosition());
 
             double powerToUse = power;
 
@@ -242,7 +268,7 @@ public abstract class AutonomousBase extends LinearOpMode {
             leftMotors((moveBack ? -powerToUse : powerToUse));
             rightMotors((moveBack ? -powerToUse : powerToUse));
 
-            telemetry.addData("Encoder", mR2.getCurrentPosition());
+            telemetry.addData("Encoder", mL2.getCurrentPosition());
             telemetry.update();
 
             idle();
@@ -278,10 +304,29 @@ public abstract class AutonomousBase extends LinearOpMode {
         disableFlywheels();
     }
 
+/*
+    ---------- 0 ----------
+    |                     |
+    |                     |
+    |                     |
+    |                     |
+   90          o         -90
+    |                     |
+    |                     |
+    |                     |
+    |                     |
+    ----(179)-180-(-179)---
+
+ */
 
     public void turnToHeading(int targetHeading, float power, int threshold, boolean negativeSpin) throws InterruptedException {
         float currentHeading = getHeading();
         boolean turnLeft = false;
+
+        Log.i("turnToHeading", "Starting at: " + currentHeading);
+        Log.i("turnToHeading", "Ending at: " + targetHeading);
+        Log.i("turnToHeading", "Turn direction: " + (turnLeft ? "left" : "right"));
+
         while (Math.abs(currentHeading - targetHeading) > threshold) {
             turnLeft = (currentHeading > targetHeading);
             float distanceToTarget = Math.abs(currentHeading - targetHeading);
@@ -289,6 +334,10 @@ public abstract class AutonomousBase extends LinearOpMode {
             double usedPower = power;
             if ((Math.abs(currentHeading - targetHeading)) < 10) {
                 usedPower = power / 1.7;
+            }
+
+            if (usedPower < 0.4) {
+                usedPower = 0.4;
             }
 
             /*
@@ -380,20 +429,27 @@ public abstract class AutonomousBase extends LinearOpMode {
         rightMotors(0.0f);
     }*/
 
-    public void pressButton() throws InterruptedException {
+    public void pressButton(boolean shouldTryAgain) throws InterruptedException {
         int blueNegativeFactor = (alliance == Alliance.RED ? 1 : -1);
-        moveDistance_smooth(blueNegativeFactor * -300, 0.5f);
-        sleep(1000);
+        /*moveDistance_smooth(blueNegativeFactor * -300, 0.5f);
+        sleep(1000);*/
 
         Alliance sideColor = getSideBeaconColor();
 
         if (sideColor == Alliance.UNKNOWN) {
-            // unknown alliance, just give up then
+            // unknown alliance
+            if (shouldTryAgain) {
+                // try again
+                moveDistance_smooth(blueNegativeFactor * 150, 0.5f);
+                pressButton(false);
+            } else {
+                // just give up then
+            }
             return;
         }
 
         if (sideColor != alliance) {
-            moveDistance_smooth(blueNegativeFactor * 300, 0.5f);
+            moveDistance_smooth(blueNegativeFactor * -300, 0.5f);
         }
         extendSidePusher();
         sleep(1000);

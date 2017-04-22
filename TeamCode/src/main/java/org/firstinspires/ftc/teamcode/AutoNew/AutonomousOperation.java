@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.AutoNew;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Consts;
+
 public abstract class AutonomousOperation extends AutonomousBase {
 
     public abstract Alliance getCurrentAlliance();
@@ -29,31 +31,37 @@ public abstract class AutonomousOperation extends AutonomousBase {
 
         while (opModeIsActive()) {
             moveDistance(1400, 0.5f);
-            sleep(1000);
+            sleep(500);
 
-            shoot();
-            sleep(2000);
+            /*shoot();
+            sleep(2000);*/
 
-            turnToHeading((isRed ? 45 : 135), 0.45f, 1, true);
-            sleep(1000);
+            turnToHeading((isRed ? 43 : 135), 0.45f, 1, true);
+            sleep(500);
 
-            moveDistance(blueNegativeFactor * 3900, 0.4f);
-            sleep(1000);
+            moveDistance(blueNegativeFactor * 3500, 0.4f);
+            sleep(500);
 
-            turnToHeading((isRed ? 2 : 164), 0.5f, 1, true);
-            sleep(2000);
+            turnToHeading((isRed ? 0 : 164), 0.6f, 1, true);
+            sleep(500);
+
+            extendSideWheels();
+            sleep(500);
+
+            sideFrontWheel.setPower(Consts.SIDE_FRONT_WHEEL_HOLD_POWER);
+            sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_HOLD_POWER);
 
             moveUntilCenterLine(blueNegativeFactor * 0.45f, blueNegativeFactor * 0.45f);
-            sleep(2000);
+            sleep(500);
 
             moveUntilCenterLine(blueNegativeFactor * -0.3f, blueNegativeFactor * -0.3f);
-            sleep(2000);
+            sleep(500);
 
             turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
-            sleep(2000);
+            sleep(500);
 
-            pressButton();
-            sleep(2000);
+            pressButton(true);
+            sleep(500);
 
             requestOpModeStop();
 

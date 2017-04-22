@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.Consts;
+
 /**
  * Created by student on 6/2/16.
  */
@@ -27,23 +29,10 @@ public class UncertaintyPrinciple11453 extends OpMode{
     Servo stop1;
     Servo stop2;
     CRServo sidePusher;
-    CRServo sideWheel;
+    CRServo sideFrontWheel;
+    CRServo sideBackWheel;
 
     Gamepad _lastGamepad2;
-
-    public void retractSideWheel() throws InterruptedException {
-        sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        sideWheel.setPower(1.0);
-        Thread.sleep(2000);
-        sideWheel.setPower(0.0);
-    }
-
-    public void extendSideWheel() throws InterruptedException {
-        sideWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        sideWheel.setPower(1.0);
-        Thread.sleep(2000);
-        sideWheel.setPower(0.0);
-    }
 
     public void init() {
 
@@ -58,7 +47,8 @@ public class UncertaintyPrinciple11453 extends OpMode{
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
         sidePusher = hardwareMap.crservo.get("side_pusher");
-        sideWheel = hardwareMap.crservo.get("side_wheel");
+        sideFrontWheel = hardwareMap.crservo.get("side_front_wheel");
+        sideBackWheel = hardwareMap.crservo.get("side_back_wheel");
 
 
         mL1.setDirection(DcMotor.Direction.FORWARD);
@@ -157,13 +147,18 @@ public class UncertaintyPrinciple11453 extends OpMode{
         }
 
         if (gamepad2.x) {
-            sideWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-            sideWheel.setPower(1.0);
+            sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+            sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+            sideFrontWheel.setPower(1.0);
+            sideBackWheel.setPower(1.0);
         } else if (gamepad2.b) {
-            sideWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-            sideWheel.setPower(1.0);
+            sideFrontWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+            sideBackWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+            sideFrontWheel.setPower(1.0);
+            sideBackWheel.setPower(1.0);
         } else {
-            sideWheel.setPower(0.0);
+            sideFrontWheel.setPower(0.0);
+            sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
         }
 
         if(gamepad2.right_bumper) {
