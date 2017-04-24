@@ -30,38 +30,55 @@ public abstract class AutonomousOperation extends AutonomousBase {
         status("Running...");
 
         while (opModeIsActive()) {
-            moveDistance(1400, 0.5f);
-            sleep(500);
-
-            /*shoot();
-            sleep(2000);*/
-
-            turnToHeading((isRed ? 43 : 135), 0.45f, 1, true);
-            sleep(500);
-
-            moveDistance(blueNegativeFactor * 3500, 0.4f);
-            sleep(500);
-
-            turnToHeading((isRed ? 0 : 164), 0.6f, 1, true);
-            sleep(500);
-
+            // forward and shoot
             extendSideWheels();
-            sleep(500);
+            moveDistance(1400, 0.5f);
+            sleep(250);
+
+            shoot();
+
+            disableFlywheels();
+
+            // aim for the wall and go forwards
+            turnToHeading((isRed ? 43 : 135), 0.45f, 1, true);
+            sleep(250);
+
+            moveDistance(blueNegativeFactor * 3900, 0.4f);
+            sleep(250);
+
+            turnToHeading((isRed ? 0 : 164), 0.5f, 1, true);
+            sleep(250);
 
             sideFrontWheel.setPower(Consts.SIDE_FRONT_WHEEL_HOLD_POWER);
             sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_HOLD_POWER);
 
+            // press the first beacon
             moveUntilCenterLine(blueNegativeFactor * 0.45f, blueNegativeFactor * 0.45f);
-            sleep(500);
+            sleep(250);
 
             moveUntilCenterLine(blueNegativeFactor * -0.3f, blueNegativeFactor * -0.3f);
-            sleep(500);
+            sleep(250);
 
             turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
-            sleep(500);
+            sleep(250);
 
             pressButton(true);
-            sleep(500);
+
+            // go towards the second beacon
+            moveDistance(blueNegativeFactor * -1500, 1.0f);
+            sleep(250);
+
+            moveUntilCenterLine(blueNegativeFactor * -0.45f, blueNegativeFactor * -0.45f);
+            sleep(250);
+
+            moveUntilCenterLine(blueNegativeFactor * 0.3f, blueNegativeFactor * 0.3f);
+            sleep(250);
+
+            turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
+            sleep(250);
+
+            pressButton(true);
+            sleep(250);
 
             requestOpModeStop();
 

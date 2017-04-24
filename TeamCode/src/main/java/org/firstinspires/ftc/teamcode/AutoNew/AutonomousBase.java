@@ -226,16 +226,16 @@ public abstract class AutonomousBase extends LinearOpMode {
      * higher-level functions
      */
     public void moveDistance(int distanceToMove, float power) throws InterruptedException {
-        int targetDistance = mL2.getCurrentPosition() + distanceToMove;
-        boolean moveBack = targetDistance < mL2.getCurrentPosition();
+        int targetDistance = mR1.getCurrentPosition() + distanceToMove;
+        boolean moveBack = targetDistance < mR1.getCurrentPosition();
 
         while (
-                (!moveBack && mL2.getCurrentPosition() < targetDistance) ||
-                (moveBack && mL2.getCurrentPosition() > targetDistance)) {
+                (!moveBack && mR1.getCurrentPosition() < targetDistance) ||
+                (moveBack && mR1.getCurrentPosition() > targetDistance)) {
             leftMotors((moveBack ? -power : power));
             rightMotors((moveBack ? -power : power));
 
-            telemetry.addData("Encoder", mL2.getCurrentPosition());
+            telemetry.addData("Encoder", mR1.getCurrentPosition());
             telemetry.update();
 
             idle();
@@ -246,14 +246,14 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
     public void moveDistance_smooth(int distanceToMove, float power) throws InterruptedException {
-        int targetDistance = mL2.getCurrentPosition() + distanceToMove;
+        int targetDistance = mR1.getCurrentPosition() + distanceToMove;
         int distanceToTarget;
-        boolean moveBack = targetDistance < mL2.getCurrentPosition();
+        boolean moveBack = targetDistance < mR1.getCurrentPosition();
 
         while (
-                (!moveBack && mL2.getCurrentPosition() < targetDistance) ||
-                        (moveBack && mL2.getCurrentPosition() > targetDistance)) {
-            distanceToTarget = Math.abs(targetDistance - mL2.getCurrentPosition());
+                (!moveBack && mR1.getCurrentPosition() < targetDistance) ||
+                        (moveBack && mR1.getCurrentPosition() > targetDistance)) {
+            distanceToTarget = Math.abs(targetDistance - mR1.getCurrentPosition());
 
             double powerToUse = power;
 
@@ -268,7 +268,7 @@ public abstract class AutonomousBase extends LinearOpMode {
             leftMotors((moveBack ? -powerToUse : powerToUse));
             rightMotors((moveBack ? -powerToUse : powerToUse));
 
-            telemetry.addData("Encoder", mL2.getCurrentPosition());
+            telemetry.addData("Encoder", mR1.getCurrentPosition());
             telemetry.update();
 
             idle();
@@ -440,7 +440,8 @@ public abstract class AutonomousBase extends LinearOpMode {
             // unknown alliance
             if (shouldTryAgain) {
                 // try again
-                moveDistance_smooth(blueNegativeFactor * 150, 0.5f);
+                Log.i("Autonomous", "trying again");
+                moveDistance(blueNegativeFactor * 200, 0.5f);
                 pressButton(false);
             } else {
                 // just give up then
@@ -452,7 +453,7 @@ public abstract class AutonomousBase extends LinearOpMode {
             moveDistance_smooth(blueNegativeFactor * -300, 0.5f);
         }
         extendSidePusher();
-        sleep(1000);
+        sleep(100);
         retractSidePusher();
     }
 }
