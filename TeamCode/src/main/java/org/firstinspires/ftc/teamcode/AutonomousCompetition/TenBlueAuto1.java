@@ -3,14 +3,18 @@ package org.firstinspires.ftc.teamcode.AutonomousCompetition;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Consts;
 
 
 @Autonomous(name="TenBLUE#1", group="automas")
 
-public class TensecBlueAuto1 extends LinearOpMode {
+public class TenBlueAuto1 extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime     runtime = new ElapsedTime();
@@ -23,8 +27,8 @@ public class TensecBlueAuto1 extends LinearOpMode {
     DcMotor elevator;
     Servo stop1;
     Servo stop2;
-    Servo button1;
-    Servo button2;
+    CRServo sideFrontWheel;
+    CRServo sideBackWheel;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -37,8 +41,8 @@ public class TensecBlueAuto1 extends LinearOpMode {
         elevator = hardwareMap.dcMotor.get("elevator");
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
-        button2 = hardwareMap.servo.get("button2");
-        button1 = hardwareMap.servo.get("button1");
+        sideFrontWheel = hardwareMap.crservo.get("side_front_wheel");
+        sideBackWheel = hardwareMap.crservo.get("side_back_wheel");
 
         mL1.setDirection(DcMotor.Direction.FORWARD);
         mL2.setDirection(DcMotor.Direction.FORWARD);
@@ -56,12 +60,17 @@ public class TensecBlueAuto1 extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        shoottest(1);
+        shoottest(0.9);
+        sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        sideFrontWheel.setPower(1.0);
+        sideBackWheel.setPower(1.0);
 
-        sleep(7000);
+        sleep(2000);
+        sideFrontWheel.setPower(Consts.SIDE_FRONT_WHEEL_STOP_POWER);
+        sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
+        sleep(5000);
 
-        button2.setPosition(.25);
-        button1.setPosition(1);
 
         // Step 1:  Drive forward for 3 seconds
 

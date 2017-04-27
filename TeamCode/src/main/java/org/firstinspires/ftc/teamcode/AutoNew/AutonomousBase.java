@@ -146,6 +146,18 @@ public abstract class AutonomousBase extends LinearOpMode {
         engageSideWheelServo(sideBackWheel);
     }
 
+    public void enableSideWheels() {
+        sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        sideFrontWheel.setPower(0.9);
+        sideBackWheel.setPower(1.0);
+    }
+
+    public void holdSideWheels() {
+        sideFrontWheel.setPower(0.0);
+        sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
+    }
+
     public void extendSideWheels() throws InterruptedException {
         sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -203,7 +215,7 @@ public abstract class AutonomousBase extends LinearOpMode {
 
     public Alliance getSideBeaconColor() throws InterruptedException {
         int i = 0;
-        while (i < 500) {
+        while (i < 250) {
             telemetry.addData("r", beaconSideColor.red());
             telemetry.addData("g", beaconSideColor.green());
             telemetry.addData("b", beaconSideColor.blue());
@@ -226,16 +238,16 @@ public abstract class AutonomousBase extends LinearOpMode {
      * higher-level functions
      */
     public void moveDistance(int distanceToMove, float power) throws InterruptedException {
-        int targetDistance = mR1.getCurrentPosition() + distanceToMove;
-        boolean moveBack = targetDistance < mR1.getCurrentPosition();
+        int targetDistance = mR2.getCurrentPosition() + distanceToMove;
+        boolean moveBack = targetDistance < mR2.getCurrentPosition();
 
         while (
-                (!moveBack && mR1.getCurrentPosition() < targetDistance) ||
-                (moveBack && mR1.getCurrentPosition() > targetDistance)) {
+                (!moveBack && mR2.getCurrentPosition() < targetDistance) ||
+                (moveBack && mR2.getCurrentPosition() > targetDistance)) {
             leftMotors((moveBack ? -power : power));
             rightMotors((moveBack ? -power : power));
 
-            telemetry.addData("Encoder", mR1.getCurrentPosition());
+            telemetry.addData("Encoder", mR2.getCurrentPosition());
             telemetry.update();
 
             idle();
@@ -246,14 +258,14 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
     public void moveDistance_smooth(int distanceToMove, float power) throws InterruptedException {
-        int targetDistance = mR1.getCurrentPosition() + distanceToMove;
+        int targetDistance = mR2.getCurrentPosition() + distanceToMove;
         int distanceToTarget;
-        boolean moveBack = targetDistance < mR1.getCurrentPosition();
+        boolean moveBack = targetDistance < mR2.getCurrentPosition();
 
         while (
-                (!moveBack && mR1.getCurrentPosition() < targetDistance) ||
-                        (moveBack && mR1.getCurrentPosition() > targetDistance)) {
-            distanceToTarget = Math.abs(targetDistance - mR1.getCurrentPosition());
+                (!moveBack && mR2.getCurrentPosition() < targetDistance) ||
+                        (moveBack && mR2.getCurrentPosition() > targetDistance)) {
+            distanceToTarget = Math.abs(targetDistance - mR2.getCurrentPosition());
 
             double powerToUse = power;
 
@@ -268,7 +280,7 @@ public abstract class AutonomousBase extends LinearOpMode {
             leftMotors((moveBack ? -powerToUse : powerToUse));
             rightMotors((moveBack ? -powerToUse : powerToUse));
 
-            telemetry.addData("Encoder", mR1.getCurrentPosition());
+            telemetry.addData("Encoder", mR2.getCurrentPosition());
             telemetry.update();
 
             idle();
@@ -295,10 +307,10 @@ public abstract class AutonomousBase extends LinearOpMode {
         sleep(200);
 
         elevator.setPower(1);
-        sleep(3000);
+        sleep(2000);
 
         closeStops();
-        sleep(1000);
+        //sleep(1000);
 
         elevator.setPower(0);
         disableFlywheels();
@@ -321,7 +333,7 @@ public abstract class AutonomousBase extends LinearOpMode {
 
     public void turnToHeading(int targetHeading, float power, int threshold, boolean negativeSpin) throws InterruptedException {
         float currentHeading = getHeading();
-        boolean turnLeft = false;
+        boolean turnLeft = (currentHeading > targetHeading);
 
         Log.i("turnToHeading", "Starting at: " + currentHeading);
         Log.i("turnToHeading", "Ending at: " + targetHeading);
@@ -429,7 +441,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         rightMotors(0.0f);
     }*/
 
-    public void pressButton(boolean shouldTryAgain) throws InterruptedException {
+    public void pressButton(boolean shouldTryAgain, int tryDir) throws InterruptedException {
         int blueNegativeFactor = (alliance == Alliance.RED ? 1 : -1);
         /*moveDistance_smooth(blueNegativeFactor * -300, 0.5f);
         sleep(1000);*/
@@ -438,19 +450,19 @@ public abstract class AutonomousBase extends LinearOpMode {
 
         if (sideColor == Alliance.UNKNOWN) {
             // unknown alliance
-            if (shouldTryAgain) {
+            /*if (shouldTryAgain) {
                 // try again
                 Log.i("Autonomous", "trying again");
-                moveDistance(blueNegativeFactor * 200, 0.5f);
-                pressButton(false);
+                moveDistance(blueNegativeFactor * tryDir * 200, 0.5f);
+                pressButton(false, tryDir);
             } else {
                 // just give up then
-            }
+            }*/
             return;
         }
 
         if (sideColor != alliance) {
-            moveDistance_smooth(blueNegativeFactor * -300, 0.5f);
+            moveDistance_smooth(blueNegativeFactor * tryDir * -300, 0.5f);
         }
         extendSidePusher();
         sleep(100);

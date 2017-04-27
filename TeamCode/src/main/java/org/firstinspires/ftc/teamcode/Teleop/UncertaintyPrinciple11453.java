@@ -122,7 +122,7 @@ public class UncertaintyPrinciple11453 extends OpMode{
 
 
 //        shoot(2.25);
-        shoottest(1);
+        shoottest(0.8);
 
         if(gamepad2.left_stick_y>0) {
             elevator(-1);
