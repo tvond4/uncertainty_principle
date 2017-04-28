@@ -31,9 +31,9 @@ public abstract class AutonomousOperation extends AutonomousBase {
 
         while (opModeIsActive()) {
             // forward and shoot
-            enableSideWheels();
+            //enableSideWheels();
             moveDistance(1400, 0.5f);
-            holdSideWheels();
+            //holdSideWheels();
             sleep(100);
 
             shoot();
@@ -41,17 +41,26 @@ public abstract class AutonomousOperation extends AutonomousBase {
             disableFlywheels();
 
             // aim for the wall and go forwards
-            turnToHeading((isRed ? 40 : 135), 0.5f, 1, true);
+            turnToHeading((isRed ? 43 : 135), 0.45f, 1, true);
             sleep(100);
 
-            moveDistance((isRed ? blueNegativeFactor * 4200 : blueNegativeFactor * 4300), 0.4f);
+            moveDistance((isRed ? blueNegativeFactor * 3900 : blueNegativeFactor * 4300), 0.4f);
             sleep(100);
+
+            // aim to wall
+            turnToHeading(blueNegativeFactor * 90, 0.5f, 1, true);
+            sleep(100);
+
+            moveToDistance(13, 0.5f);
+            sleep(100);
+
+            moveDistance(-100, 0.5f);
 
             turnToHeading((isRed ? 0 : 164), 0.5f, 1, true);
             sleep(100);
 
-            sideFrontWheel.setPower(Consts.SIDE_FRONT_WHEEL_HOLD_POWER);
-            sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_HOLD_POWER);
+            //sideFrontWheel.setPower(Consts.SIDE_FRONT_WHEEL_HOLD_POWER);
+            //sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_HOLD_POWER);
 
             // press the first beacon
             moveUntilCenterLine(blueNegativeFactor * 0.45f, blueNegativeFactor * 0.45f);
@@ -60,14 +69,19 @@ public abstract class AutonomousOperation extends AutonomousBase {
             moveUntilCenterLine(blueNegativeFactor * -0.3f, blueNegativeFactor * -0.3f);
             sleep(100);
 
-            turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
+            turnToHeading((isRed ? 0 : 164), 0.45f, 1, true);
             sleep(100);
 
             pressButton(true, 1);
 
+//            turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
+//            sleep(100);
+
             // go towards the second beacon
             moveDistance(blueNegativeFactor * -2000, 1.0f);
             sleep(100);
+
+            sidePusher.setPower(0.0);
 
             moveUntilCenterLine(blueNegativeFactor * -0.45f, blueNegativeFactor * -0.45f);
             sleep(100);
@@ -75,11 +89,16 @@ public abstract class AutonomousOperation extends AutonomousBase {
             moveUntilCenterLine(blueNegativeFactor * 0.3f, blueNegativeFactor * 0.3f);
             sleep(100);
 
-            turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
-            sleep(100);
+//            turnToHeading((isRed ? 0 : 177), 0.5f, 0, true);
+//            sleep(100);
 
             pressButton(true, 1);
             sleep(100);
+
+            turnToHeading((isRed ? 3 : 164), 0.5f, 1, true);
+            sleep(100);
+
+            moveDistance(blueNegativeFactor * -2000, 1.0f);
 
             requestOpModeStop();
 

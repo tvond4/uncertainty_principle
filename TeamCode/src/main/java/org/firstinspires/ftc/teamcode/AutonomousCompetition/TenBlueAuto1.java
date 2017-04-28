@@ -27,8 +27,8 @@ public class TenBlueAuto1 extends LinearOpMode {
     DcMotor elevator;
     Servo stop1;
     Servo stop2;
-    CRServo sideFrontWheel;
-    CRServo sideBackWheel;
+    /*CRServo sideFrontWheel;
+    CRServo sideBackWheel;*/
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -41,8 +41,8 @@ public class TenBlueAuto1 extends LinearOpMode {
         elevator = hardwareMap.dcMotor.get("elevator");
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
-        sideFrontWheel = hardwareMap.crservo.get("side_front_wheel");
-        sideBackWheel = hardwareMap.crservo.get("side_back_wheel");
+//        sideFrontWheel = hardwareMap.crservo.get("side_front_wheel");
+//        sideBackWheel = hardwareMap.crservo.get("side_back_wheel");
 
         mL1.setDirection(DcMotor.Direction.FORWARD);
         mL2.setDirection(DcMotor.Direction.FORWARD);
@@ -61,14 +61,14 @@ public class TenBlueAuto1 extends LinearOpMode {
         waitForStart();
 
         shoottest(0.9);
-        sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        sideFrontWheel.setPower(1.0);
-        sideBackWheel.setPower(1.0);
+//        sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+//        sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+//        sideFrontWheel.setPower(1.0);
+//        sideBackWheel.setPower(1.0);
 
         sleep(2000);
-        sideFrontWheel.setPower(Consts.SIDE_FRONT_WHEEL_STOP_POWER);
-        sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
+//        sideFrontWheel.setPower(Consts.SIDE_FRONT_WHEEL_STOP_POWER);
+//        sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
         sleep(5000);
 
 
@@ -96,22 +96,12 @@ public class TenBlueAuto1 extends LinearOpMode {
         sleep(200);     // pause for servos to move
         elevator(-1);
         sleep(4000);
-        stop1.setPosition(.6); //close
-        stop2.setPosition(.1);
+//        stop1.setPosition(.6); //close
+//        stop2.setPosition(.1);
         sleep(1000);
         elevator(0);
         shoot(0);
 
-        mL1.setPower(.5);
-        mR1.setPower(.5);
-        mL2.setPower(.5);
-        mR2.setPower(.5);
-        runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < .3)) {
-            telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
-            telemetry.update();
-            idle();
-        }
         // Step 2:  Spin right for 1.3 seconds
         mL1.setPower(-1);
         mR1.setPower(1);
@@ -124,12 +114,35 @@ public class TenBlueAuto1 extends LinearOpMode {
             idle();
         }
 
-        mL1.setPower(-.7);
-        mR1.setPower(-.7);
-        mL2.setPower(-.7);
-        mR2.setPower(-.7);
+        mL1.setPower(-.5);
+        mR1.setPower(-.5);
+        mL2.setPower(-.5);
+        mR2.setPower(-.5);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < .7)) {
+        while (opModeIsActive() && (runtime.seconds() < .3)) {
+            telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
+            telemetry.update();
+            idle();
+        }
+
+        // Step 2:  Spin right for 1.3 seconds
+        mL1.setPower(-1);
+        mR1.setPower(1);
+        mL2.setPower(-1);
+        mR2.setPower(1);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < .9)) {
+            telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
+            telemetry.update();
+            idle();
+        }
+
+        mL1.setPower(.7);
+        mR1.setPower(.7);
+        mL2.setPower(.7);
+        mR2.setPower(.7);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < .9)) {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
             idle();

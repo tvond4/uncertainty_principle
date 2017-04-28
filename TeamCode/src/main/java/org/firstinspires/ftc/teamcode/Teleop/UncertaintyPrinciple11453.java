@@ -29,8 +29,6 @@ public class UncertaintyPrinciple11453 extends OpMode{
     Servo stop1;
     Servo stop2;
     CRServo sidePusher;
-    CRServo sideFrontWheel;
-    CRServo sideBackWheel;
 
     Gamepad _lastGamepad2;
 
@@ -47,8 +45,6 @@ public class UncertaintyPrinciple11453 extends OpMode{
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
         sidePusher = hardwareMap.crservo.get("side_pusher");
-        sideFrontWheel = hardwareMap.crservo.get("side_front_wheel");
-        sideBackWheel = hardwareMap.crservo.get("side_back_wheel");
 
 
         mL1.setDirection(DcMotor.Direction.FORWARD);
@@ -146,7 +142,7 @@ public class UncertaintyPrinciple11453 extends OpMode{
             sidePusher.setPower(0.0);
         }
 
-        if (gamepad2.x) {
+        /*if (gamepad2.x) {
             sideFrontWheel.setDirection(DcMotorSimple.Direction.REVERSE);
             sideBackWheel.setDirection(DcMotorSimple.Direction.FORWARD);
             sideFrontWheel.setPower(1.0);
@@ -159,7 +155,7 @@ public class UncertaintyPrinciple11453 extends OpMode{
         } else {
             sideFrontWheel.setPower(0.0);
             sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
-        }
+        }*/
 
         if(gamepad2.right_bumper) {
             stop1.setPosition(.0);

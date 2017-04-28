@@ -40,8 +40,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorMRRangeSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@Autonomous(name = "Range", group = "SensorTests")
-@Disabled
+@Autonomous(name = "RangeTest", group = "SensorTests")
 public class RangeSensor extends LinearOpMode {
 
     ModernRoboticsI2cRangeSensor rangeSensor;
@@ -56,6 +55,8 @@ public class RangeSensor extends LinearOpMode {
 
         while (opModeIsActive()) {
             telemetry.addData("distance", "%.2f in", rangeSensor.getDistance(DistanceUnit.INCH));
+            telemetry.addData("optical", "%.2f cm", rangeSensor.cmOptical());
+            telemetry.addData("ultrasonic", "%.2f cm", rangeSensor.cmUltrasonic());
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.AutoNew;
 import android.util.Log;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Consts;
 
 public abstract class AutonomousBase extends LinearOpMode {
@@ -37,10 +39,9 @@ public abstract class AutonomousBase extends LinearOpMode {
     Servo stop1;
     Servo stop2;
     CRServo sidePusher;
-    CRServo sideFrontWheel;
-    CRServo sideBackWheel;
 
     ModernRoboticsI2cGyro gyro;
+    ModernRoboticsI2cRangeSensor range;
     ColorSensor beaconSideColor;
     OpticalDistanceSensor centerLine;
 
@@ -70,8 +71,6 @@ public abstract class AutonomousBase extends LinearOpMode {
         stop1 = hardwareMap.servo.get("stop1");
         stop2 = hardwareMap.servo.get("stop2");
         sidePusher = hardwareMap.crservo.get("side_pusher");
-        sideFrontWheel = hardwareMap.crservo.get("side_front_wheel");
-        sideBackWheel = hardwareMap.crservo.get("side_back_wheel");
 
         // sensors
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("mrimu");
@@ -87,6 +86,8 @@ public abstract class AutonomousBase extends LinearOpMode {
         beaconSideColor = hardwareMap.colorSensor.get("beacon_side_color");
         beaconSideColor.setI2cAddress(I2cAddr.create8bit(0x4c));
         beaconSideColor.enableLed(false);
+
+        range = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
 
         centerLine = hardwareMap.opticalDistanceSensor.get("center_line");
 
@@ -120,7 +121,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         sidePusher.setPower(0.0);
     }
 
-    public void engageSideWheelServo(CRServo servo) throws InterruptedException  {
+    /*public void engageSideWheelServo(CRServo servo) throws InterruptedException  {
         servo.setPower(1.0);
         sleep(2000);
         servo.setPower((servo.equals(sideBackWheel) ? Consts.SIDE_BACK_WHEEL_STOP_POWER : 0.0));
@@ -176,7 +177,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         sleep(2000);
         sideFrontWheel.setPower(0.0);
         sideBackWheel.setPower(Consts.SIDE_BACK_WHEEL_STOP_POWER);
-    }
+    }*/
 
     /*
      * shooting functions
@@ -214,15 +215,11 @@ public abstract class AutonomousBase extends LinearOpMode {
     }
 
     public Alliance getSideBeaconColor() throws InterruptedException {
-        int i = 0;
-        while (i < 250) {
-            telemetry.addData("r", beaconSideColor.red());
-            telemetry.addData("g", beaconSideColor.green());
-            telemetry.addData("b", beaconSideColor.blue());
-            telemetry.update();
-            i++;
-            Thread.sleep(1);
-        }
+        telemetry.addData("r", beaconSideColor.red());
+        telemetry.addData("g", beaconSideColor.green());
+        telemetry.addData("b", beaconSideColor.blue());
+        telemetry.update();
+        Thread.sleep(100);
         if (beaconSideColor.red() == 255 || beaconSideColor.blue() == 255 || beaconSideColor.red() == beaconSideColor.blue()) {
             return Alliance.UNKNOWN;
         } else if (beaconSideColor.red() > beaconSideColor.blue()) {
@@ -241,9 +238,9 @@ public abstract class AutonomousBase extends LinearOpMode {
         int targetDistance = mR2.getCurrentPosition() + distanceToMove;
         boolean moveBack = targetDistance < mR2.getCurrentPosition();
 
-        while (
-                (!moveBack && mR2.getCurrentPosition() < targetDistance) ||
-                (moveBack && mR2.getCurrentPosition() > targetDistance)) {
+        while (opModeIsActive() &&
+                ((!moveBack && mR2.getCurrentPosition() < targetDistance) ||
+                (moveBack && mR2.getCurrentPosition() > targetDistance))) {
             leftMotors((moveBack ? -power : power));
             rightMotors((moveBack ? -power : power));
 
@@ -290,17 +287,20 @@ public abstract class AutonomousBase extends LinearOpMode {
         rightMotors(0.0);
     }
 
-    /*public void moveToDistance(float targetDistance, float power) throws InterruptedException {
+    public void moveToDistance(float targetDistance, float power) throws InterruptedException {
         while (range.getDistance(DistanceUnit.INCH) > targetDistance) {
             leftMotors(power);
             rightMotors(power);
+
+            telemetry.addData("distance", range.getDistance(DistanceUnit.INCH));
+            telemetry.update();
 
             idle();
         }
 
         leftMotors(0.0);
         rightMotors(0.0);
-    }*/
+    }
 
     public void shoot() throws InterruptedException {
         openStops();
@@ -339,7 +339,7 @@ public abstract class AutonomousBase extends LinearOpMode {
         Log.i("turnToHeading", "Ending at: " + targetHeading);
         Log.i("turnToHeading", "Turn direction: " + (turnLeft ? "left" : "right"));
 
-        while (Math.abs(currentHeading - targetHeading) > threshold) {
+        while (opModeIsActive() && Math.abs(currentHeading - targetHeading) > threshold) {
             turnLeft = (currentHeading > targetHeading);
             float distanceToTarget = Math.abs(currentHeading - targetHeading);
 
@@ -466,6 +466,8 @@ public abstract class AutonomousBase extends LinearOpMode {
         }
         extendSidePusher();
         sleep(100);
-        retractSidePusher();
+        sidePusher.setDirection(DcMotorSimple.Direction.FORWARD);
+        sidePusher.setPower(1.0);
+        sleep(1000);
     }
 }
